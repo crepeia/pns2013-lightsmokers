@@ -1,0 +1,19 @@
+Alteração em 12/12/2014: Exclusão das informações da parte específica de morador selecionado em 12 registros.
+
+Durante o processo de geração do arquivo de microdados de pessoas, disponibilizados no portal do IBGE, foram incluídas, indevidamente, em 12 registros, informações rejeitadas no processo de crítica dos dados referentes a parte específica de morador selecionado. 
+Salienta-se que a estimação, corretamente, não considerou estes registros. Ou seja, estes registros não foram considerados no processo de geração de indicadores produzidos e divulgados com base na Pesquisa Nacional de Saúde. 
+Assim, informamos que o plano tabular e os demais produtos disponibilizados estão corretos.
+
+Alteração em 03/02/2015: Inclusão de variáveis nos microdados de domicílios e pessoas.
+
+Inclusão da variável 'UPA' nos microdados de domicílios e pessoas. A variável 'UPA' é o código unificado de UPA das Pesquisas Domiciliares do Sistema Integrado.
+Inclusão da variável 'M010' nos microdados de pessoas. Esta variável pertence a um módulo não divulgado, porém necessária para o cálculo do indicador, já divulgado, sobre exposição à fumaça no ambiente de trabalho.
+
+Alteração em 12/02/2015: Inclusão de variáveis do módulo P nos microdados de pessoas.
+
+Inclusão de variáveis quantitativas do módulo P relativas ao tabagismo. As variáveis se referem aos quesitos P54 e P58.
+
+Alteração em 27/03/2015: Substituição da variável V0006 pela V0006_PNS nos microdados de domicílios e pessoas.
+
+Substituição da variável V0006 (Número de ordem do domicílio) pela V0006_PNS (Número de ordem do domicílio na PNS). 
+Assim, o chaveamento da PNS 2013 passa a ser para informações de domicílio: V0001 (Unidade da Federação), V0024 (Estrato), UPA_PNS (UPA) e V0006_PNS (Número de ordem do domicílio na PNS); e para informações de morador: V0001 (Unidade da Federação), V0024 (Estrato), UPA_PNS (UPA), V0006_PNS (Número de ordem do domicílio na PNS) e C00301 (Número de ordem do morador).
