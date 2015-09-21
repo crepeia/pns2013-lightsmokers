@@ -63,7 +63,7 @@ img {
 <div id="header">
 <h1 class="title">Analysis.R</h1>
 <h4 class="author"><em>guilh</em></h4>
-<h4 class="date"><em>Mon Sep 14 10:26:02 2015</em></h4>
+<h4 class="date"><em>Mon Sep 21 20:38:47 2015</em></h4>
 </div>
 
 
@@ -94,12 +94,16 @@ pnsDT &lt;- readRDS(&quot;data/pns.rds&quot;)
     
 tabaco &lt;- subset(pnsDT, pnsDT$P050 != &quot; &quot;)
 
-#criando subset fumantes leves, fumantes pesados e n?o fumantes
-tabaco$status[tabaco$P052 == c(&quot;3&quot;) &amp; tabaco$P050== c(&quot;3&quot;)] &lt;- 0
-tabaco$status[tabaco$P05401 == c(&quot;1&quot;) &amp; tabaco$P05402 &lt; 9] &lt;- 1
-tabaco$status[tabaco$P05401 == c(&quot;2&quot;, &quot;3&quot;)] &lt;- 1
-tabaco$status[tabaco$P05401 == c(&quot;1&quot;) &amp; tabaco$P05402 &gt;= 9] &lt;- 2
+#criando subset nunca fumantes, fumantes leve e fumantes pesados
+#tabaco$status[tabaco$P052 == c(&quot;3&quot;) &amp; tabaco$P050== c(&quot;3&quot;)] &lt;- 0
+#tabaco$status[tabaco$P05401 == c(&quot;1&quot;) &amp; tabaco$P05402 &lt; 9] &lt;- 1
+#tabaco$status[tabaco$P05401 == c(&quot;2&quot;, &quot;3&quot;)] &lt;- 1
+#tabaco$status[tabaco$P05401 == c(&quot;1&quot;) &amp; tabaco$P05402 &gt;= 9] &lt;- 2
 
+tabaco$status[tabaco$P052 == c(&quot;3&quot;)] &lt;- 0
+tabaco$status[tabaco$P05401 == c(&quot;1&quot;) &amp; tabaco$P05402 &lt;= 9] &lt;- 1
+tabaco$status[tabaco$P05401 == c(&quot;2&quot;, &quot;3&quot;)] &lt;- 1
+tabaco$status[tabaco$P05401 == c(&quot;1&quot;) &amp; tabaco$P05402 &gt; 9] &lt;- 2
 
 # Survey format
 fumo &lt;- svydesign(
@@ -114,76 +118,79 @@ fumo &lt;- svydesign(
 prop.table(svytable(formula = ~tabaco$P050+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$P050            0            1            2
-##           1 0.0000000000 0.0450878663 0.0865794966
-##           2 0.0000000000 0.0135048066 0.0007055266
+##           1 0.0000000000 0.0456355401 0.0860318228
+##           2 0.0000000000 0.0135269945 0.0006833387
 ##           3 0.8541223039 0.0000000000 0.0000000000</code></pre>
 <pre class="r"><code>#C006 - Sexo
 prop.table(svytable(formula = ~tabaco$C006+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$C006          0          1          2
-##           1 0.35520696 0.03343728 0.05400706
-##           2 0.49891534 0.02515540 0.03327797</code></pre>
-<pre class="r"><code>#C012 - O informante desta parte foi:
+##           1 0.35520696 0.03373995 0.05370438
+##           2 0.49891534 0.02542258 0.03301078</code></pre>
+<pre class="r"><code>#svychisq(~tabaco$C006+tabaco$status, fumo)
+#svychisq(~tabaco$C006+tabaco$status, fumo,statistic=&quot;adjWald&quot;)
+
+#C012 - O informante desta parte foi:
 prop.table(svytable(~tabaco$C012+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$C012            0            1            2
-##           1 0.5505796184 0.0374551096 0.0565775872
-##           2 0.2922583690 0.0206915179 0.0292561695
+##           1 0.5505796184 0.0377100556 0.0563226413
+##           2 0.2922583690 0.0210064337 0.0289412537
 ##           3 0.0112843164 0.0004460453 0.0014512665</code></pre>
-<pre class="r"><code>#VDD004-N?vel de instru??o mais elevado alcan?ado (pessoas de 5 anos ou mais de idade)
+<pre class="r"><code>#VDD004-N?vel de instrução mais elevado alcançado (pessoas de 5 anos ou mais de idade)
 prop.table(svytable(~tabaco$VDD004+tabaco$status, fumo))</code></pre>
 <pre><code>##              tabaco$status
 ## tabaco$VDD004           0           1           2
-##             1 0.095087241 0.009816969 0.011248101
-##             2 0.180288672 0.018295519 0.029144763
-##             3 0.081903666 0.006952869 0.012555409
-##             4 0.052209992 0.003234212 0.004773883
-##             5 0.274463158 0.013638626 0.018739699
-##             6 0.046878167 0.002569779 0.002684897
+##             1 0.095087241 0.009861977 0.011203093
+##             2 0.180288672 0.018392172 0.029048111
+##             3 0.081903666 0.007178221 0.012330057
+##             4 0.052209992 0.003373719 0.004634377
+##             5 0.274463158 0.013657599 0.018720726
+##             6 0.046878167 0.002614149 0.002640527
 ##             7 0.123291409 0.004084698 0.008138271</code></pre>
-<pre class="r"><code>#N001-Em geral, como o(a) Sr(a) avalia a sua sa?de?
+<pre class="r"><code>#N001-Em geral, como o(a) Sr(a) avalia a sua saúde?
 prop.table(svytable( ~tabaco$N001+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$N001           0           1           2
-##           1 0.124521173 0.008486710 0.008867838
-##           2 0.473798179 0.028333081 0.043722467
-##           3 0.217462384 0.018041941 0.027462423
+##           1 0.124521173 0.008594629 0.008759918
+##           2 0.473798179 0.028606814 0.043448734
+##           3 0.217462384 0.018230151 0.027274213
 ##           4 0.031411367 0.003034678 0.005095981
 ##           5 0.006929200 0.000696263 0.002136315</code></pre>
-<pre class="r"><code>#P005-A Sra est? gr?vida no momento?
+<pre class="r"><code>#P005-A Sra est? grávida no momento?
 prop.table(svytable(~tabaco$P005+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$P005            0            1            2
-##             0.5066010729 0.0428341417 0.0684476233
+##             0.5066010729 0.0433548483 0.0679269168
 ##           1 0.0110590571 0.0002496166 0.0002019270
-##           2 0.3339030809 0.0153214436 0.0181756205
+##           2 0.3339030809 0.0153705987 0.0181264653
 ##           3 0.0025590930 0.0001874710 0.0004598525</code></pre>
-<pre class="r"><code>#P028-Quantos dias por semana o(a) Sr(a) costuma tomar alguma bebida alco?lica? 
+<pre class="r"><code>#P028-Quantos dias por semana o(a) Sr(a) costuma tomar alguma bebida alcoólica? 
 prop.table(svytable(~tabaco$P028+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$P028           0           1           2
-##           0 0.079438997 0.010855081 0.008711056
-##           1 0.336304896 0.036510465 0.048662430
-##           2 0.189743539 0.037434166 0.051795604
-##           3 0.052783824 0.009303051 0.017054811
-##           4 0.022726887 0.004122550 0.008155680
+##           0 0.079438997 0.011015838 0.008550299
+##           1 0.336304896 0.036812296 0.048360600
+##           2 0.189743539 0.038019405 0.051210365
+##           3 0.052783824 0.009319856 0.017038006
+##           4 0.022726887 0.004140341 0.008137888
 ##           5 0.011995775 0.001846401 0.003767980
 ##           6 0.005579455 0.001416643 0.002975680
-##           7 0.028356520 0.007767075 0.022691435</code></pre>
-<pre class="r"><code>#P029-Em geral, no dia que o(a) Sr(a) bebe, quantas doses de bebida alco?lica o(a) Sr(a) consome?
+##           7 0.028356520 0.007783264 0.022675246</code></pre>
+<pre class="r"><code>#P029-Em geral, no dia que o(a) Sr(a) bebe, quantas doses de bebida alcoólica o(a) Sr(a) consome?
 prop.table(svytable(~tabaco$P029+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$P029            0            1            2
-##          1  1.542294e-01 1.399278e-02 1.648696e-02
-##          2  1.298257e-01 1.968485e-02 2.281307e-02
-##          3  1.136890e-01 1.355536e-02 3.048258e-02
-##          4  8.230668e-02 1.081424e-02 2.077833e-02
-##          5  7.647833e-02 1.472113e-02 1.859415e-02
+##          1  1.542294e-01 1.403646e-02 1.644328e-02
+##          2  1.298257e-01 1.991473e-02 2.258319e-02
+##          3  1.136890e-01 1.401415e-02 3.002378e-02
+##          4  8.230668e-02 1.100920e-02 2.058337e-02
+##          5  7.647833e-02 1.474957e-02 1.856571e-02
 ##          6  4.975293e-02 6.841135e-03 1.319977e-02
 ##          7  9.959002e-03 1.473647e-03 2.790689e-03
-##          8  2.156542e-02 4.442253e-03 7.962206e-03
+##          8  2.156542e-02 4.468851e-03 7.935608e-03
 ##          9  1.529655e-03 7.174311e-04 3.555578e-04
-##          10 4.203969e-02 7.884279e-03 1.272387e-02
+##          10 4.203969e-02 7.984352e-03 1.262380e-02
 ##          11 7.862946e-04 3.490201e-05 2.486618e-04
 ##          12 1.711544e-02 5.949438e-03 5.789853e-03
 ##          13 1.948764e-04 4.782217e-05 0.000000e+00
@@ -198,7 +205,7 @@ prop.table(svytable(~tabaco$P029+tabaco$status, fumo))</code></pre>
 ##          23 0.000000e+00 0.000000e+00 2.821960e-06
 ##          24 2.971570e-03 5.871635e-04 9.959401e-04
 ##          25 4.098870e-04 4.171366e-05 2.373325e-04
-##          30 1.812166e-03 5.983372e-04 1.576198e-03
+##          30 1.812166e-03 6.145263e-04 1.560009e-03
 ##          32 0.000000e+00 1.350736e-05 0.000000e+00
 ##          35 0.000000e+00 0.000000e+00 2.034236e-04
 ##          36 4.555368e-04 6.077537e-05 8.872258e-05
@@ -213,141 +220,141 @@ prop.table(svytable(~tabaco$P029+tabaco$status, fumo))</code></pre>
 prop.table(svytable(~tabaco$P055+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$P055            0            1            2
-##             0.8541223039 0.0135048066 0.0007055266
-##           1 0.0000000000 0.0046332377 0.0262331630
-##           2 0.0000000000 0.0129273700 0.0384205147
-##           3 0.0000000000 0.0077202136 0.0109933232
-##           4 0.0000000000 0.0198070451 0.0109324957</code></pre>
-<pre class="r"><code>#P060-Durante os ?ltimos 12 meses, o(a) Sr(a) tentou parar de fumar?
+##             0.8541223039 0.0135269945 0.0006833387
+##           1 0.0000000000 0.0048380990 0.0260283017
+##           2 0.0000000000 0.0131720434 0.0381758413
+##           3 0.0000000000 0.0077273329 0.0109862038
+##           4 0.0000000000 0.0198980648 0.0108414760</code></pre>
+<pre class="r"><code>#P060-Durante os últimos 12 meses, o(a) Sr(a) tentou parar de fumar?
 prop.table(svytable(~tabaco$P060+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$P060          0          1          2
 ##             0.85412230 0.00000000 0.00000000
-##           1 0.00000000 0.03047157 0.03857030
-##           2 0.00000000 0.02812110 0.04871472</code></pre>
-<pre class="r"><code>#P061-Quando o(a) Sr(a) tentou parar de fumar, procurou tratamento com profissional de sa?de?
+##           1 0.00000000 0.03084524 0.03819663
+##           2 0.00000000 0.02831730 0.04851853</code></pre>
+<pre class="r"><code>#P061-Quando o(a) Sr(a) tentou parar de fumar, procurou tratamento com profissional de saúde?
 prop.table(svytable(~tabaco$P061+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$P061           0           1           2
-##             0.854122304 0.028121101 0.048714721
+##             0.854122304 0.028317295 0.048518527
 ##           1 0.000000000 0.002735833 0.004475269
-##           2 0.000000000 0.027735738 0.034095033</code></pre>
-<pre class="r"><code>#P072-Nos ?ltimos 30 dias, as advert?ncias nos ma?os de cigarro levaram o(a) Sr(a) a pensar em parar de fumar?
+##           2 0.000000000 0.028109406 0.033721366</code></pre>
+<pre class="r"><code>#P072-Nos últimos 30 dias, as adverténcias nos ma?os de cigarro levaram o(a) Sr(a) a pensar em parar de fumar?
 prop.table(svytable(~tabaco$P072+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$P072           0           1           2
 ##             0.854122304 0.006139656 0.006657132
-##           1 0.000000000 0.033926020 0.045248836
-##           2 0.000000000 0.018526997 0.035379055</code></pre>
-<pre class="r"><code>#Q002-Algum m?dico j? lhe deu o diagn?stico de hipertens?o arterial (press?o alta)?
+##           1 0.000000000 0.034283045 0.044891811
+##           2 0.000000000 0.018739834 0.035166218</code></pre>
+<pre class="r"><code>#Q002-Algum médico já lhe deu o diagnóstico de hipertensão arterial (press?o alta)?
 prop.table(svytable(~tabaco$Q002+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q002            0            1            2
-##             0.0277511165 0.0029291227 0.0020635672
-##           1 0.1570623092 0.0101035807 0.0184545591
-##           2 0.0121115936 0.0007610215 0.0004513395
-##           3 0.6571972846 0.0447989480 0.0663155574</code></pre>
-<pre class="r"><code>#Q01805-Em algum dos atendimentos para hipertens?o, algum m?dico ou outro profissional de sa?de lhe recomendou n?o fumar?
+##             0.0277511165 0.0029752066 0.0020174833
+##           1 0.1570623092 0.0101513586 0.0184067812
+##           2 0.0121115936 0.0007676911 0.0004446699
+##           3 0.6571972846 0.0452682783 0.0658462271</code></pre>
+<pre class="r"><code>#Q01805-Em algum dos atendimentos para hipertensão, algum médico ou outro profissional de saúde lhe recomendou n?o fumar?
 prop.table(svytable(~tabaco$Q01805+tabaco$status, fumo))</code></pre>
 <pre><code>##              tabaco$status
 ## tabaco$Q01805           0           1           2
-##               0.713481201 0.049627568 0.071929971
-##             1 0.104711273 0.007461723 0.013705885
+##               0.713481201 0.050149652 0.071407887
+##             1 0.104711273 0.007509501 0.013658107
 ##             2 0.035929829 0.001503382 0.001649168</code></pre>
 <pre class="r"><code>#Q030-Algum m?dico j? lhe deu o diagn?stico de diabetes?
 prop.table(svytable(~tabaco$Q030+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q030            0            1            2
-##             9.488214e-02 9.066447e-03 1.197917e-02
-##           1 4.578865e-02 2.519961e-03 4.495942e-03
+##             9.488214e-02 9.238501e-03 1.180711e-02
+##           1 4.578865e-02 2.528150e-03 4.487753e-03
 ##           2 2.466069e-03 1.371042e-04 5.468995e-05
-##           3 7.109854e-01 4.686916e-02 7.075522e-02</code></pre>
+##           3 7.109854e-01 4.725878e-02 7.036560e-02</code></pre>
 <pre class="r"><code>#Q04604-Em algum dos atendimentos para diabetes, algum m?dico ou outro profissional de sa?de lhe recomendou n?o fumar?
 prop.table(svytable(~tabaco$Q04604+tabaco$status, fumo))</code></pre>
 <pre><code>##              tabaco$status
 ## tabaco$Q04604            0            1            2
-##               0.8135980002 0.0563911767 0.0839690678
-##             1 0.0320790630 0.0019439753 0.0028508948
+##               0.8135980002 0.0569528498 0.0834073947
+##             1 0.0320790630 0.0019521638 0.0028427063
 ##             2 0.0084452407 0.0002575209 0.0004650606</code></pre>
-<pre class="r"><code>#Q060-Algum m?dico j? lhe deu o diagn?stico de colesterol alto?
+<pre class="r"><code>#Q060-Algum médico já lhe deu o diagn?stico de colesterol alto?
 prop.table(svytable(~tabaco$Q060+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q060           0           1           2
-##             0.117862082 0.011704684 0.014481786
+##             0.117862082 0.011876738 0.014309732
 ##           1 0.097280623 0.005912773 0.010868057
-##           2 0.638979599 0.040975216 0.061935180</code></pre>
-<pre class="r"><code>#Q06205-Algum m?dico ou outro profissional de sa?de lhe deu alguma recomenda??o para n?o fumar por causa do colesterol alto?
+##           2 0.638979599 0.041373023 0.061537373</code></pre>
+<pre class="r"><code>#Q06205-Algum médico ou outro profissional de saúde lhe deu alguma recomendação para não fumar por causa do colesterol alto?
 prop.table(svytable(~tabaco$Q06205+tabaco$status, fumo))</code></pre>
 <pre><code>##              tabaco$status
 ## tabaco$Q06205           0           1           2
-##               0.756841681 0.052679900 0.076416966
+##               0.756841681 0.053249761 0.075847104
 ##             1 0.064847451 0.004365371 0.008807477
 ##             2 0.032433172 0.001547403 0.002060580</code></pre>
-<pre class="r"><code>#Q063-Algum m?dico j? lhe deu o diagn?stico de uma doen?a do cora??o tais como infarto, angina, insufici?ncia cardiaca ou outra?
+<pre class="r"><code>#Q063-Algum médico já lhe deu o diagnóstico de uma doença do coração tais como infarto, angina, insuficiência cardiaca ou outra?
 prop.table(svytable(~tabaco$Q063+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q063           0           1           2
 ##           1 0.028486136 0.002201852 0.002907411
-##           2 0.825636167 0.056390821 0.084377612</code></pre>
-<pre class="r"><code>#Q068-Algum m?dico j? lhe deu o diagn?stico de AVC (Acidente Vascular cerebral) ou derrame?
+##           2 0.825636167 0.056960683 0.083807750</code></pre>
+<pre class="r"><code>#Q068-Algum médico já lhe deu o diagnóstico de AVC (Acidente Vascular cerebral) ou derrame?
 prop.table(svytable(~tabaco$Q068+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q068           0           1           2
 ##           1 0.009515834 0.001356388 0.001387708
-##           2 0.844606470 0.057236285 0.085897315</code></pre>
-<pre class="r"><code>#Q074-Algum m?dico j? lhe deu o diagn?stico de asma (ou bronquite asm?tica)?
+##           2 0.844606470 0.057806147 0.085327453</code></pre>
+<pre class="r"><code>#Q074-Algum médico já lhe deu o diagnóstico de asma (ou bronquite asm?tica)?
 prop.table(svytable(~tabaco$Q074+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q074           0           1           2
 ##           1 0.034933784 0.002717862 0.005107991
-##           2 0.819188520 0.055874811 0.082177032</code></pre>
-<pre class="r"><code>#Q079-Algum m?dico j? lhe deu o diagn?stico de artrite ou reumatismo?
+##           2 0.819188520 0.056444673 0.081607170</code></pre>
+<pre class="r"><code>#Q079-Algum médico já lhe deu o diagnóstico de artrite ou reumatismo?
 prop.table(svytable(~tabaco$Q079+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q079           0           1           2
-##           1 0.046490000 0.003197279 0.005783078
-##           2 0.807632304 0.055395394 0.081501945</code></pre>
-<pre class="r"><code>#Q084-O(a) Sr(a) tem algum problema cr?nico de coluna, como dor cr?nica nas costas ou no pesco?o, lombalgia, dor ci?tica, problemas nas v?rtebras ou disco?
+##           1 0.046490000 0.003277178 0.005703179
+##           2 0.807632304 0.055885356 0.081011983</code></pre>
+<pre class="r"><code>#Q084-O(a) Sr(a) tem algum problema crônico de coluna, como dor cr?nica nas costas ou no pescoço, lombalgia, dor ciática, problemas nas v?rtebras ou disco?
 prop.table(svytable(~tabaco$Q084+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q084          0          1          2
-##           1 0.13447034 0.01193438 0.01980471
-##           2 0.71965196 0.04665829 0.06748032</code></pre>
-<pre class="r"><code>#Q088-Algum m?dico j? lhe deu o diagn?stico de DORT (dist?rbio osteomuscular relacionado ao trabalho)?
+##           1 0.13447034 0.01223482 0.01950427
+##           2 0.71965196 0.04692772 0.06721089</code></pre>
+<pre class="r"><code>#Q088-Algum médico já lhe deu o diagnóstico de DORT (distúrbio osteomuscular relacionado ao trabalho)?
 prop.table(svytable(~tabaco$Q088+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q088           0           1           2
 ##           1 0.019571802 0.001535055 0.002607426
-##           2 0.834550502 0.057057618 0.084677598</code></pre>
-<pre class="r"><code>#Q092-Algum m?dico ou profissional de sa?de mental (como psiquiatra ou psic?logo) j? lhe deu o diagn?stico de depress?o?
+##           2 0.834550502 0.057627480 0.084107736</code></pre>
+<pre class="r"><code>#Q092-Algum médico ou profissional de saúde mental (como psiquiatra ou psicólogo) já lhe deu o diagnóstico de depressão?
 prop.table(svytable(~tabaco$Q092+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q092           0           1           2
 ##           1 0.056996790 0.005336336 0.010043305
-##           2 0.797125514 0.053256337 0.077241718</code></pre>
-<pre class="r"><code>#Q110-Algum m?dico ou profissional de sa?de mental (como psiquiatra ou psic?logo) j? lhe deu o diagn?stico de outra doen?a mental, como esquizofrenia, transtorno bipolar, psicose ou TOC (Transtorno obsessivo compulsivo)? PS: O question?rio possui uest?es espec?ficas para cada uma das doen?as.
+##           2 0.797125514 0.053826198 0.076671856</code></pre>
+<pre class="r"><code>#Q110-Algum m?dico ou profissional de sa?de mental (como psiquiatra ou psic?logo) já lhe deu o diagn?stico de outra doen?a mental, como esquizofrenia, transtorno bipolar, psicose ou TOC (Transtorno obsessivo compulsivo)? PS: O question?rio possui uest?es específicas para cada uma das doen?as.
 prop.table(svytable(~tabaco$Q110+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q110            0            1            2
 ##           1 0.0076534857 0.0004442209 0.0014605716
-##           2 0.8464688182 0.0581484520 0.0858244517</code></pre>
-<pre class="r"><code>#Q116-Algum m?dico j? lhe deu o diagn?stico de alguma doen?a no pulm?o ou DPOC (Doen?a Pulmonar Obstrutiva Cr?nica), tais como enfisema pulmonar, bronquite cr?nica ou outro?
+##           2 0.8464688182 0.0587183137 0.0852545900</code></pre>
+<pre class="r"><code>#Q116-Algum médico já lhe deu o diagnóstico de alguma doença no pulm?ão ou DPOC (Doen?a Pulmonar Obstrutiva Cr?nica), tais como enfisema pulmonar, bronquite crônica ou outro?
 prop.table(svytable(~tabaco$Q116+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q116           0           1           2
-##           1 0.010569087 0.001332600 0.002856562
-##           2 0.843553217 0.057260073 0.084428461</code></pre>
-<pre class="r"><code>#Q120-Algum m?dico j? lhe deu algum diagn?stico de c?ncer?
+##           1 0.010569087 0.001346525 0.002842637
+##           2 0.843553217 0.057816010 0.083872524</code></pre>
+<pre class="r"><code>#Q120-Algum médico já lhe deu algum diagnóstico de c?ncer?
 prop.table(svytable(~tabaco$Q120+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q120            0            1            2
 ##           1 0.0125191572 0.0007426418 0.0015935548
-##           2 0.8416031467 0.0578500311 0.0856914684</code></pre>
-<pre class="r"><code>#Q121-No primeiro diagn?stico de c?ncer, que tipo de c?ncer o(a) sr(a) tem ou teve?
+##           2 0.8416031467 0.0584198928 0.0851216068</code></pre>
+<pre class="r"><code>#Q121-No primeiro diagn?stico de câncer, que tipo de c?ncer o(a) sr(a) tem ou teve?
 prop.table(svytable(~tabaco$Q121+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q121            0            1            2
-##             8.416031e-01 5.785003e-02 8.569147e-02
+##             8.416031e-01 5.841989e-02 8.512161e-02
 ##           1 1.179950e-04 6.840780e-06 0.000000e+00
 ##           2 8.272043e-04 5.093740e-06 2.670488e-04
 ##           3 3.125645e-04 0.000000e+00 4.266260e-05
@@ -356,18 +363,18 @@ prop.table(svytable(~tabaco$Q121+tabaco$status, fumo))</code></pre>
 ##           6 1.134847e-03 6.374566e-05 1.220332e-04
 ##           7 1.891387e-03 3.722777e-04 2.305202e-04
 ##           8 3.426189e-03 1.743395e-04 7.064384e-04</code></pre>
-<pre class="r"><code>#Q124-Algum m?dico j? lhe deu o diagn?stico de insufici?ncia renal cr?nica?
+<pre class="r"><code>#Q124-Algum m?dico j? lhe deu o diagn?stico de insuficiência renal crônica?
 prop.table(svytable(~tabaco$Q124+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q124           0           1           2
 ##           1 0.009154169 0.001243285 0.001581921
-##           2 0.844968135 0.057349388 0.085703102</code></pre>
-<pre class="r"><code>#Q128-Algum m?dico j? lhe deu o diagn?stico de outra doen?a cr?nica, f?sica ou mental, ou doen?a de longa dura??o (de mais de 6 meses de dura??o)?
+##           2 0.844968135 0.057919249 0.085133241</code></pre>
+<pre class="r"><code>#Q128-Algum médico já lhe deu o diagnóstico de outra doen?a cr?nica, f?sica ou mental, ou doen?a de longa dura??o (de mais de 6 meses de dura??o)?
 prop.table(svytable(~tabaco$Q128+tabaco$status, fumo))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$Q128           0           1           2
-##           1 0.045615633 0.002291694 0.005140322
-##           2 0.808506671 0.056300978 0.082144701</code></pre>
+##           1 0.045615633 0.002470615 0.004961402
+##           2 0.808506671 0.056691920 0.081753760</code></pre>
 
 
 </div>
