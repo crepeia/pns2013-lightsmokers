@@ -40,15 +40,14 @@ fumo <- svydesign(
 )
 
 # prevalencia de usuario de algum produto de tabaco
-fumante_atual<- subset(pnsDT,pnsDT$P050 == c("1","2","3"))
-
-prop.table(svytable(formula = ~fumante_atual$P050, fumo))
+prop.table(svytable(formula = ~tabaco$P050, fumo))
 
 
 # Reproduce the original estimate from IBGE.
 
 #C006 - Sexo
 prop.table(svytable(formula = ~tabaco$C006+tabaco$status+tabaco$C012, fumo))
+prop.table(svytable(formula = ~tabaco$C006+tabaco$idade, fumo))
 
 # P050 - Atualmente, o(a) Sr(a) fuma algum produto do tabaco?
 prop.table(svytable(formula = ~tabaco$P050+tabaco$status, fumo ))

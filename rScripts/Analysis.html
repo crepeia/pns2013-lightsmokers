@@ -63,7 +63,7 @@ img {
 <div id="header">
 <h1 class="title">Analysis.R</h1>
 <h4 class="author"><em>guilh</em></h4>
-<h4 class="date"><em>Mon Sep 21 20:38:47 2015</em></h4>
+<h4 class="date"><em>Tue Sep 29 11:40:29 2015</em></h4>
 </div>
 
 
@@ -94,11 +94,14 @@ pnsDT &lt;- readRDS(&quot;data/pns.rds&quot;)
     
 tabaco &lt;- subset(pnsDT, pnsDT$P050 != &quot; &quot;)
 
-#criando subset nunca fumantes, fumantes leve e fumantes pesados
-#tabaco$status[tabaco$P052 == c(&quot;3&quot;) &amp; tabaco$P050== c(&quot;3&quot;)] &lt;- 0
-#tabaco$status[tabaco$P05401 == c(&quot;1&quot;) &amp; tabaco$P05402 &lt; 9] &lt;- 1
-#tabaco$status[tabaco$P05401 == c(&quot;2&quot;, &quot;3&quot;)] &lt;- 1
-#tabaco$status[tabaco$P05401 == c(&quot;1&quot;) &amp; tabaco$P05402 &gt;= 9] &lt;- 2
+tabaco$idade[18 &lt;= tabaco$C008 &amp; tabaco$C008 &lt; 29]&lt;-0
+tabaco$idade[29 &lt;= tabaco$C008 &amp; tabaco$C008 &lt; 59]&lt;-1
+tabaco$idade[59 &lt;= tabaco$C008 &amp; tabaco$C008 &lt; 64]&lt;-2
+tabaco$idade[64 &lt;= tabaco$C008 &amp; tabaco$C008 &lt; 74]&lt;-3
+tabaco$idade[tabaco$C008 &gt;= 74]&lt;-4
+
+
+
 
 tabaco$status[tabaco$P052 == c(&quot;3&quot;)] &lt;- 0
 tabaco$status[tabaco$P05401 == c(&quot;1&quot;) &amp; tabaco$P05402 &lt;= 9] &lt;- 1
@@ -112,21 +115,47 @@ fumo &lt;- svydesign(
   weights = ~V00291
 )
 
+# prevalencia de usuario de algum produto de tabaco
+prop.table(svytable(formula = ~tabaco$P050, fumo))</code></pre>
+<pre><code>## tabaco$P050
+##         1         2         3 
+## 0.1273224 0.0197598 0.8529178</code></pre>
+<pre class="r"><code># Reproduce the original estimate from IBGE.
 
-# Reproduce the original estimate from IBGE.
-# P050 - Atualmente, o(a) Sr(a) fuma algum produto do tabaco?
-prop.table(svytable(formula = ~tabaco$P050+tabaco$status, fumo))</code></pre>
+#C006 - Sexo
+prop.table(svytable(formula = ~tabaco$C006+tabaco$status+tabaco$C012, fumo))</code></pre>
+<pre><code>## , , tabaco$C012 = 1
+## 
+##            tabaco$status
+## tabaco$C006            0            1            2
+##           1 0.1899736773 0.0177500468 0.0305781416
+##           2 0.3606059411 0.0199600088 0.0257444997
+## 
+## , , tabaco$C012 = 2
+## 
+##            tabaco$status
+## tabaco$C006            0            1            2
+##           1 0.1608343653 0.0157290782 0.0220363232
+##           2 0.1314240037 0.0052773555 0.0069049306
+## 
+## , , tabaco$C012 = 3
+## 
+##            tabaco$status
+## tabaco$C006            0            1            2
+##           1 0.0043989204 0.0002608259 0.0010899185
+##           2 0.0068853960 0.0001852194 0.0003613481</code></pre>
+<pre class="r"><code>prop.table(svytable(formula = ~tabaco$C006+tabaco$idade, fumo))</code></pre>
+<pre><code>##            tabaco$idade
+## tabaco$C006          0          1          2          3          4
+##           1 0.11914454 0.26560041 0.02775564 0.03619989 0.02233497
+##           2 0.12070527 0.29873111 0.03486023 0.04527081 0.02939715</code></pre>
+<pre class="r"><code># P050 - Atualmente, o(a) Sr(a) fuma algum produto do tabaco?
+prop.table(svytable(formula = ~tabaco$P050+tabaco$status, fumo ))</code></pre>
 <pre><code>##            tabaco$status
 ## tabaco$P050            0            1            2
 ##           1 0.0000000000 0.0456355401 0.0860318228
 ##           2 0.0000000000 0.0135269945 0.0006833387
 ##           3 0.8541223039 0.0000000000 0.0000000000</code></pre>
-<pre class="r"><code>#C006 - Sexo
-prop.table(svytable(formula = ~tabaco$C006+tabaco$status, fumo))</code></pre>
-<pre><code>##            tabaco$status
-## tabaco$C006          0          1          2
-##           1 0.35520696 0.03373995 0.05370438
-##           2 0.49891534 0.02542258 0.03301078</code></pre>
 <pre class="r"><code>#svychisq(~tabaco$C006+tabaco$status, fumo)
 #svychisq(~tabaco$C006+tabaco$status, fumo,statistic=&quot;adjWald&quot;)
 
