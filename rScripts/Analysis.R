@@ -51,7 +51,7 @@ prop.table(svytable(formula = ~fumante_atual$P050, fumo))
 prop.table(svytable(formula = ~tabaco$C006+tabaco$status+tabaco$C012, fumo))
 
 # P050 - Atualmente, o(a) Sr(a) fuma algum produto do tabaco?
-prop.table(svytable(formula = ~tabaco$P050+tabaco$status, fumo))
+prop.table(svytable(formula = ~tabaco$P050+tabaco$status, fumo ))
 
 
 #svychisq(~tabaco$C006+tabaco$status, fumo)
