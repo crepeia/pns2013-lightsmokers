@@ -18,11 +18,14 @@ pnsDT <- readRDS("data/pns.rds")
     
 tabaco <- subset(pnsDT, pnsDT$P050 != " ")
 
-#criando subset nunca fumantes, fumantes leve e fumantes pesados
-#tabaco$status[tabaco$P052 == c("3") & tabaco$P050== c("3")] <- 0
-#tabaco$status[tabaco$P05401 == c("1") & tabaco$P05402 < 9] <- 1
-#tabaco$status[tabaco$P05401 == c("2", "3")] <- 1
-#tabaco$status[tabaco$P05401 == c("1") & tabaco$P05402 >= 9] <- 2
+tabaco$idade[18 <= tabaco$C008 & tabaco$C008 < 29]<-0
+tabaco$idade[29 <= tabaco$C008 & tabaco$C008 < 59]<-1
+tabaco$idade[59 <= tabaco$C008 & tabaco$C008 < 64]<-2
+tabaco$idade[64 <= tabaco$C008 & tabaco$C008 < 74]<-3
+tabaco$idade[tabaco$C008 >= 74]<-4
+
+
+
 
 tabaco$status[tabaco$P052 == c("3")] <- 0
 tabaco$status[tabaco$P05401 == c("1") & tabaco$P05402 <= 9] <- 1
@@ -36,13 +39,20 @@ fumo <- svydesign(
   weights = ~V00291
 )
 
+# prevalencia de usuario de algum produto de tabaco
+fumante_atual<- subset(pnsDT,pnsDT$P050 == c("1","2","3"))
+
+prop.table(svytable(formula = ~fumante_atual$P050, fumo))
+
 
 # Reproduce the original estimate from IBGE.
+
+#C006 - Sexo
+prop.table(svytable(formula = ~tabaco$C006+tabaco$status+tabaco$C012, fumo))
+
 # P050 - Atualmente, o(a) Sr(a) fuma algum produto do tabaco?
 prop.table(svytable(formula = ~tabaco$P050+tabaco$status, fumo))
 
-#C006 - Sexo
-prop.table(svytable(formula = ~tabaco$C006+tabaco$status, fumo))
 
 #svychisq(~tabaco$C006+tabaco$status, fumo)
 #svychisq(~tabaco$C006+tabaco$status, fumo,statistic="adjWald")
