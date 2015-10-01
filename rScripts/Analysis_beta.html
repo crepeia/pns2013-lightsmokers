@@ -63,7 +63,7 @@ img {
 <div id="header">
 <h1 class="title">Analysis_beta.R</h1>
 <h4 class="author"><em>guilh</em></h4>
-<h4 class="date"><em>Thu Oct 01 09:46:36 2015</em></h4>
+<h4 class="date"><em>Thu Oct 01 09:55:53 2015</em></h4>
 </div>
 
 
@@ -115,6 +115,12 @@ prop.table(svytable(formula = ~tabaco$P050, fumo))</code></pre>
 <pre><code>## tabaco$P050
 ##         1         2         3 
 ## 0.1273224 0.0197598 0.8529178</code></pre>
+<pre class="r"><code>prop.table(svytable(formula = ~tabaco$P050+tabaco$status, fumo))</code></pre>
+<pre><code>##            tabaco$status
+## tabaco$P050           0           1           2           3
+##           1 0.000000000 0.002082745 0.043239227 0.086254704
+##           2 0.000000000 0.003985851 0.007417301 0.000685109
+##           3 0.856335062 0.000000000 0.000000000 0.000000000</code></pre>
 <pre class="r"><code>#C006 - Sexo
 prop.table(svytable(formula = ~tabaco$C006+tabaco$status+tabaco$C012, fumo))</code></pre>
 <pre><code>## , , tabaco$C012 = 1

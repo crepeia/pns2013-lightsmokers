@@ -34,6 +34,8 @@ fumo <- svydesign(
 
 # prevalencia de usuario de algum produto de tabaco
 prop.table(svytable(formula = ~tabaco$P050, fumo))
+prop.table(svytable(formula = ~tabaco$P050+tabaco$status, fumo))
+
 
 
 #C006 - Sexo
