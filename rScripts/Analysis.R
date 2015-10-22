@@ -59,6 +59,14 @@ tabaco$status[tabaco$P050 == 3 &
 tabaco$status[tabaco$P05401 == 4]                           <- "Fumante esporadico < 1 vez por mes"
 tabaco$status[tabaco$P05401 == 5]                           <- "Nao fumante de cigarro industrializado"
 
+#status2
+
+tabaco$status2[tabaco$P052 == "3"]                           <- "Nunca fumante"
+tabaco$status2[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- "Fumante leve diario - cig. ind."
+tabaco$status2[tabaco$P05401 == "2" | tabaco$P05401 == "3"]  <- "Fumante nao diario - cig. ind." 
+tabaco$status2[tabaco$P05401 == "1" & tabaco$P05402 > 10]    <- "Fumante pesado - cig. ind."
+
+
 ## - AGE ----#
 tabaco$idade[18 <= tabaco$C008 & tabaco$C008 < 29]<- 0
 tabaco$idade[29 <= tabaco$C008 & tabaco$C008 < 59]<- 1
@@ -66,86 +74,75 @@ tabaco$idade[59 <= tabaco$C008 & tabaco$C008 < 64]<- 2
 tabaco$idade[64 <= tabaco$C008 & tabaco$C008 < 74]<- 3
 tabaco$idade[tabaco$C008 >= 74]                   <- 4
 
+
+#Education
+
+
+
 ######################################################
 # The code below does not work out of the box. Needs
 # to be validated first.
 ######################################################
 
 #status x Sexo
-prop.table(svytable(formula = ~tabaco$status+tabaco$C006, fumo))
+prop.table(svytable(formula = ~tabaco$status2+tabaco$C006,fumo))
 
 #status x Região do brasil
-prop.table(svytable(formula = ~tabaco$status+tabaco$V0001,fumo))
+prop.table(svytable(formula = ~tabaco$status2+tabaco$V0001,fumo))
 
 #status x faixa etaria 
-prop.table(svytable(formula = ~tabaco$status+tabaco$idade,fumo))
+prop.table(svytable(formula = ~tabaco$status2+tabaco$idade,fumo))
 
 #status x escolaridade
-prop.table(svytable(formula = ~tabaco$status+tabaco$VDD004,fumo))
+prop.table(svytable(formula = ~tabaco$status2+tabaco$VDD004,fumo))
 
 #status x hipertensão
-prop.table(svytable(formula = ~tabaco$status+tabaco$Q002,fumo))
+prop.table(svytable(formula = ~tabaco$status2+tabaco$Q002,fumo))
 
 
 #status x diabetes 
-prop.table(svytable(formula = ~tabaco$status+tabaco$Q030,fumo))
+prop.table(svytable(formula = ~tabaco$status2+tabaco$Q030,fumo))
 
 #status x doença ranal cronica 
 prop.table(svytable(formula = ~tabaco$status+tabaco$Q124,fumo))
 
 #status x asma 
-prop.table(svytable(formula = ~tabaco$status+tabaco$Q074,fumo))
+prop.table(svytable(formula = ~tabaco$status2+tabaco$Q074,fumo))
 
 #status x DPOC
-prop.table(svytable(formula = ~tabaco$status+tabaco$Q116,fumo))
+prop.table(svytable(formula = ~tabaco$status2+tabaco$Q116,fumo))
 
 #status x câncer
 prop.table(svytable(formula = ~tabaco$status+tabaco$Q120,fumo))
 
 #status x câncer de pulmão
-prop.table(svytable(formula = ~tabaco$status+tabaco$Q121,fumo))
+prop.table(svytable(formula = ~tabaco$status2+tabaco$Q121,fumo))
 
 
 ######################################################
 #### GRAPHICS ??
 ######################################################
 
-#Status x sexo
 
-barplot(prop.table(svytable(formula = ~tabaco$status+tabaco$C006, fumo)),beside = TRUE,names.arg = c("Masculino","Feminino"),main = "Status x Sexo")
-
-
-#status x Região do brasil
-
-barplot(prop.table(svytable(formula = ~tabaco$status+tabaco$V0001,fumo)),beside = TRUE)
-
-#status x faixa etaria 
-
-barplot(prop.table(svytable(formula = ~tabaco$status+tabaco$idade,fumo)),beside = TRUE,main = "Status x Faixa etária")
+#hipertensão
+barplot(prop.table(svytable(formula = ~tabaco$Q002+tabaco$status2,fumo)),beside = TRUE,main = "Hipertensão")
 
 
-#Status x Escolaridade
+#diabetes 
+barplot(prop.table(svytable(formula = ~tabaco$Q030+tabaco$status2,fumo)),beside = TRUE,main = "Diabetes")
 
-barplot(prop.table(svytable(formula = ~tabaco$status+tabaco$VDD004,fumo)),beside = TRUE,main = "Status x Escolaridade ")
+#doença ranal cronica 
+barplot(prop.table(svytable(formula = ~tabaco$Q124+tabaco$status2,fumo)),beside = TRUE,main = "Doença renal Crônica")
 
-#Status x hipertensão
-barplot(prop.table(svytable(formula = ~tabaco$status+tabaco$Q002,fumo)),beside = TRUE, main = "Status x Hipertensão",names.arg = c("não aplicavel","sim","apenas durante a gravidez","não "))
-
-#status x diabetes 
-barplot(prop.table(svytable(formula = ~tabaco$status+tabaco$Q030,fumo)),beside = TRUE,main = "Status x Diabetes",names.arg = c("não aplicavel","sim","apenas durante a gravidez","não "))
-
-#status x doença ranal cronica 
-barplot(prop.table(svytable(formula = ~tabaco$status+tabaco$Q124,fumo)),beside = TRUE,main = "Status x doença renal Crônica",names.arg = c("sim","não"))
-
-#status x asma 
-barplot(prop.table(svytable(formula = ~tabaco$status+tabaco$Q074,fumo)),beside = TRUE,main = "Status x Asma",names.arg = c("sim","não"))
+#Asma 
+barplot(prop.table(svytable(formula = ~tabaco$Q074+tabaco$status2,fumo)),beside = TRUE,main = "Asma")
 
 #status x DPOC 
-barplot(prop.table(svytable(formula = ~tabaco$status+tabaco$Q116,fumo)),beside = TRUE,main = "Status x DPOC",names.arg = c("sim","não"))
+barplot(prop.table(svytable(formula = ~tabaco$Q116+tabaco$status2,fumo)),beside = TRUE,main = "DPOC")
 
 #status x câncer
-barplot(prop.table(svytable(formula = ~tabaco$status+tabaco$Q120,fumo)),beside = TRUE,main = "Status x Câncer",names.arg = c("sim","não"))
+barplot(prop.table(svytable(formula = ~tabaco$Q120+tabaco$status2,fumo)),beside = TRUE,main = "Câncer")
 
 #status x tipo de câncer
-barplot(prop.table(svytable(formula = ~tabaco$status+tabaco$Q121,fumo)),beside = TRUE,main = "Status x tipo de Câncer ")
+barplot(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status2,fumo)),beside = TRUE,main = "tipo de Câncer ")
 
