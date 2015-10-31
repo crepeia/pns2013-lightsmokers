@@ -5,11 +5,20 @@
 
 # Tip 1 - The data is stored as data.table, which is way faster than data.frame. If you do not know how to use data.table, check this out: https://s3.amazonaws.com/assets.datacamp.com/img/blog/data+table+cheat+sheet.pdf
 
+# Notas
+# 1 - Criar as tabelas deixando a soma entre os sexos em 100% - OK!
+# 2 - Recodificar variÃ¡veis - OK!
+# 3 - Como usar o git apropriadamente - OK!
+# 4 - Olhar os grÃ¡ficos
+
 setwd("C:/Users/guilh/pns2013-lightsmokers") # This works only on Windows. Please comment this line if you're using a real OS.
 
 # Load survey and data.table packages
 library(survey)
 library(data.table)
+
+# Round output into 3 digits
+options(digits=3)
 
 # set R to produce conservative standard errors instead of crashing
 options(survey.lonely.psu = "adjust")
@@ -30,7 +39,6 @@ fumo <- svydesign(
   weights = ~V00291
 )
 
-
 #######################################################
 # TEST 1 - PASSED!!!
 # Reproduce the original estimates from IBGE.
@@ -48,23 +56,25 @@ prop.table(svytable(formula = ~tabaco$P067, fumo))
 
 ## - LIGHT SMOKERS ----#
 
-# Please, think of this categories more carefully. We have to be 100% sure.
+# RecodificaÃ§Ã£o de todos os participantes selecionados para responder o questionÃ¡rio individual.
+# AtenÃ§Ã£o - Usamos o cÃ³digo comentado abaixo para verificar se todas as categorias atingem 100%. Elas atingem!!
 
+# tabaco$status[tabaco$P052 == "3"]                           <- "Nunca fumante"
+# tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- "Fumante leve diario - cig. ind."
+# tabaco$status[tabaco$P05401 == "2" | tabaco$P05401 == "3"]  <- "Fumante nao diario - cig. ind." 
+# tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 > 10]    <- "Fumante pesado - cig. ind."
+# tabaco$status[tabaco$P050 == 3 & 
+#                 (tabaco$P052 == 1 | tabaco$P052 == 2) ]     <- "Ex-fumante"
+# tabaco$status[tabaco$P05401 == 4]                           <- "Fumante esporadico < 1 vez por mes"
+# tabaco$status[tabaco$P05401 == 5]                           <- "Nao fumante de cigarro industrializado"
+
+# VAR status -----
+# RecodificaÃ§Ã£o dos participantes das categorias principais do estudo. Light smokers vs everything else.
 tabaco$status[tabaco$P052 == "3"]                           <- "Nunca fumante"
-tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- "Fumante leve diario - cig. ind."
-tabaco$status[tabaco$P05401 == "2" | tabaco$P05401 == "3"]  <- "Fumante nao diario - cig. ind." 
-tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 > 10]    <- "Fumante pesado - cig. ind."
-tabaco$status[tabaco$P050 == 3 & 
-                (tabaco$P052 == 1 | tabaco$P052 == 2) ]     <- "Ex-fumante"
-tabaco$status[tabaco$P05401 == 4]                           <- "Fumante esporadico < 1 vez por mes"
-tabaco$status[tabaco$P05401 == 5]                           <- "Nao fumante de cigarro industrializado"
-
-#status2
-
-tabaco$status2[tabaco$P052 == "3"]                           <- "Nunca fumante"
-tabaco$status2[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- "Fumante leve diario - cig. ind."
-tabaco$status2[tabaco$P05401 == "2" | tabaco$P05401 == "3"]  <- "Fumante nao diario - cig. ind." 
-tabaco$status2[tabaco$P05401 == "1" & tabaco$P05402 > 10]    <- "Fumante pesado - cig. ind."
+tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- "Fumante leve diÃ¡rio"
+tabaco$status[tabaco$P05401 == "2" | tabaco$P05401 == "3"
+               | tabaco$P05401 == "4" ]                      <- "Fumante nÃ£o diÃ¡rio" 
+tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 > 10]    <- "Fumante pesado"
 
 
 ## - AGE ----#
@@ -84,11 +94,20 @@ tabaco$idade[tabaco$C008 >= 74]                   <- 4
 # to be validated first.
 ######################################################
 
-#status x Sexo
-prop.table(svytable(formula = ~tabaco$status2+tabaco$C006,fumo))
+# Survey format
+fumo <- svydesign(
+  id = ~1,
+  data = tabaco,
+  weights = ~V00291
+)
 
-#status x Região do brasil
-prop.table(svytable(formula = ~tabaco$status2+tabaco$V0001,fumo))
+# Status x Sexo
+# Tabela Funciona. A soma de cada sexo Ã© 100%
+# Aplicar isso em outras variÃ¡veis!
+round(prop.table(svytable(formula = ~tabaco$status+tabaco$C006,fumo), margin = 2),3)*100
+
+#status x Regi?o do brasil
+prop.table(svytable(formula = ~tabaco$status+tabaco$V0001,fumo))
 
 #status x faixa etaria 
 prop.table(svytable(formula = ~tabaco$status2+tabaco$idade,fumo))
@@ -96,14 +115,14 @@ prop.table(svytable(formula = ~tabaco$status2+tabaco$idade,fumo))
 #status x escolaridade
 prop.table(svytable(formula = ~tabaco$status2+tabaco$VDD004,fumo))
 
-#status x hipertensão
+#status x hipertens?o
 prop.table(svytable(formula = ~tabaco$status2+tabaco$Q002,fumo))
 
 
 #status x diabetes 
 prop.table(svytable(formula = ~tabaco$status2+tabaco$Q030,fumo))
 
-#status x doença ranal cronica 
+#status x doen?a ranal cronica 
 prop.table(svytable(formula = ~tabaco$status+tabaco$Q124,fumo))
 
 #status x asma 
@@ -112,10 +131,10 @@ prop.table(svytable(formula = ~tabaco$status2+tabaco$Q074,fumo))
 #status x DPOC
 prop.table(svytable(formula = ~tabaco$status2+tabaco$Q116,fumo))
 
-#status x câncer
+#status x c?ncer
 prop.table(svytable(formula = ~tabaco$status+tabaco$Q120,fumo))
 
-#status x câncer de pulmão
+#status x c?ncer de pulm?o
 prop.table(svytable(formula = ~tabaco$status2+tabaco$Q121,fumo))
 
 
@@ -124,15 +143,14 @@ prop.table(svytable(formula = ~tabaco$status2+tabaco$Q121,fumo))
 ######################################################
 
 
-#hipertensão
-barplot(prop.table(svytable(formula = ~tabaco$Q002+tabaco$status2,fumo)),beside = TRUE,main = "Hipertensão")
-
+#hipertens?o
+barplot(prop.table(svytable(formula = ~tabaco$Q002+tabaco$status2,fumo)),beside = TRUE,main = "Hipertens?o")
 
 #diabetes 
 barplot(prop.table(svytable(formula = ~tabaco$Q030+tabaco$status2,fumo)),beside = TRUE,main = "Diabetes")
 
-#doença ranal cronica 
-barplot(prop.table(svytable(formula = ~tabaco$Q124+tabaco$status2,fumo)),beside = TRUE,main = "Doença renal Crônica")
+#doen?a ranal cronica 
+barplot(prop.table(svytable(formula = ~tabaco$Q124+tabaco$status2,fumo)),beside = TRUE,main = "Doen?a renal Cr?nica")
 
 #Asma 
 barplot(prop.table(svytable(formula = ~tabaco$Q074+tabaco$status2,fumo)),beside = TRUE,main = "Asma")
@@ -140,9 +158,9 @@ barplot(prop.table(svytable(formula = ~tabaco$Q074+tabaco$status2,fumo)),beside 
 #status x DPOC 
 barplot(prop.table(svytable(formula = ~tabaco$Q116+tabaco$status2,fumo)),beside = TRUE,main = "DPOC")
 
-#status x câncer
-barplot(prop.table(svytable(formula = ~tabaco$Q120+tabaco$status2,fumo)),beside = TRUE,main = "Câncer")
+#status x c?ncer
+barplot(prop.table(svytable(formula = ~tabaco$Q120+tabaco$status2,fumo)),beside = TRUE,main = "C?ncer")
 
-#status x tipo de câncer
-barplot(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status2,fumo)),beside = TRUE,main = "tipo de Câncer ")
+#status x tipo de c?ncer
+barplot(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status2,fumo)),beside = TRUE,main = "tipo de C?ncer ")
 
