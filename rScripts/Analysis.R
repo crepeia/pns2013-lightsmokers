@@ -11,7 +11,7 @@
 # 3 - Como usar o git apropriadamente - OK!
 # 4 - Olhar os gráficos
 
-setwd("C:/Users/guilh/pns2013-lightsmokers") # This works only on Windows. Please comment this line if you're using a real OS.
+#setwd("C:/Users/guilh/pns2013-lightsmokers") # This works only on Windows. Please comment this line if you're using a real OS.
 
 # Load survey and data.table packages
 library(survey)
@@ -70,18 +70,22 @@ prop.table(svytable(formula = ~tabaco$P067, fumo))
 
 # VAR status -----
 # Recodificação dos participantes das categorias principais do estudo. Light smokers vs everything else.
-tabaco$status[tabaco$P052 == "3"]                           <- "Nunca fumante"
-tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- "Fumante leve diário"
+tabaco$status[tabaco$P052 == "3"]                           <- 0  #"Nunca fumante"
+tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- 2  #"Fumante leve diario - cig. ind."
 tabaco$status[tabaco$P05401 == "2" | tabaco$P05401 == "3"
-               | tabaco$P05401 == "4" ]                      <- "Fumante não diário" 
-tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 > 10]    <- "Fumante pesado"
+               | tabaco$P05401 == "4" ]                      <- 1 #"Fumante nao diario - cig. ind."
+tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 > 10]    <- 3   # "Fumante pesado - cig. ind."
+tabaco$status[tabaco$P050 == 3 & (tabaco$P052 == 1 | tabaco$P052 == 2) ]     <- 4 #"Ex-fumante"
+tabaco$status[tabaco$P05401 == 5]                           <- 5 #"Nao fumante de cigarro industrializado"
+
+status.names <- c("Nunca Fumante", "Fum. não diário", ...)
 
 
 ## - AGE ----#
-tabaco$idade[18 <= tabaco$C008 & tabaco$C008 < 29]<- 0
-tabaco$idade[29 <= tabaco$C008 & tabaco$C008 < 59]<- 1
-tabaco$idade[59 <= tabaco$C008 & tabaco$C008 < 64]<- 2
-tabaco$idade[64 <= tabaco$C008 & tabaco$C008 < 74]<- 3
+tabaco$idade[tabaco$C008>=18 & tabaco$C008 < 29]<- 0
+tabaco$idade[tabaco$C008>=29 & tabaco$C008 < 59]<- 1
+tabaco$idade[tabaco$C008>=59 & tabaco$C008 < 64]<- 2
+tabaco$idade[tabaco$C008>=64 & tabaco$C008 < 74]<- 3
 tabaco$idade[tabaco$C008 >= 74]                   <- 4
 
 
@@ -94,73 +98,48 @@ tabaco$idade[tabaco$C008 >= 74]                   <- 4
 # to be validated first.
 ######################################################
 
-# Survey format
-fumo <- svydesign(
-  id = ~1,
-  data = tabaco,
-  weights = ~V00291
-)
-
 # Status x Sexo
 # Tabela Funciona. A soma de cada sexo é 100%
 # Aplicar isso em outras variáveis!
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$C006,fumo), margin = 2),3)*100
+round(prop.table(svytable(formula = ~tabaco$C006+tabaco$status,fumo), margin = 2),3)*100
 
 #status x Regi?o do brasil
-prop.table(svytable(formula = ~tabaco$status+tabaco$V0001,fumo))
+round(prop.table(svytable(formula = ~tabaco$status+tabaco$V0001,fumo), margin = 2), 3)*100
+svyciprop(~tabaco$status, fumo)
 
 #status x faixa etaria 
-prop.table(svytable(formula = ~tabaco$status2+tabaco$idade,fumo))
+prop.table(svytable(formula = ~tabaco$status+tabaco$idade,fumo))
 
 #status x escolaridade
-prop.table(svytable(formula = ~tabaco$status2+tabaco$VDD004,fumo))
+prop.table(svytable(formula = ~tabaco$status+tabaco$VDD004,fumo))
 
 #status x hipertens?o
-prop.table(svytable(formula = ~tabaco$status2+tabaco$Q002,fumo))
-
+has<-round(prop.table(svytable(formula = ~tabaco$Q002+tabaco$status,fumo), margin=2), 3)*100
+has_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q002,fumo), margin=2), 3)*100
 
 #status x diabetes 
-prop.table(svytable(formula = ~tabaco$status2+tabaco$Q030,fumo))
+dm <- round(prop.table(svytable(formula = ~tabaco$Q030+tabaco$status,fumo), margin=2), 3)*100
 
 #status x doen?a ranal cronica 
-prop.table(svytable(formula = ~tabaco$status+tabaco$Q124,fumo))
+drc <- round(prop.table(svytable(formula = ~tabaco$Q124+tabaco$status,fumo), margin=2), 3)*100
 
 #status x asma 
-prop.table(svytable(formula = ~tabaco$status2+tabaco$Q074,fumo))
+asma <- prop.table(svytable(formula = ~tabaco$status2+tabaco$Q074,fumo))
 
 #status x DPOC
-prop.table(svytable(formula = ~tabaco$status2+tabaco$Q116,fumo))
+dpoc <- prop.table(svytable(formula = ~tabaco$status2+tabaco$Q116,fumo))
 
 #status x c?ncer
-prop.table(svytable(formula = ~tabaco$status+tabaco$Q120,fumo))
+cancer <- prop.table(svytable(formula = ~tabaco$status+tabaco$Q120,fumo))
 
 #status x c?ncer de pulm?o
-prop.table(svytable(formula = ~tabaco$status2+tabaco$Q121,fumo))
+lung <- prop.table(svytable(formula = ~tabaco$status2+tabaco$Q121,fumo))
 
 
 ######################################################
 #### GRAPHICS ??
 ######################################################
 
-
-#hipertens?o
-barplot(prop.table(svytable(formula = ~tabaco$Q002+tabaco$status2,fumo)),beside = TRUE,main = "Hipertens?o")
-
-#diabetes 
-barplot(prop.table(svytable(formula = ~tabaco$Q030+tabaco$status2,fumo)),beside = TRUE,main = "Diabetes")
-
-#doen?a ranal cronica 
-barplot(prop.table(svytable(formula = ~tabaco$Q124+tabaco$status2,fumo)),beside = TRUE,main = "Doen?a renal Cr?nica")
-
-#Asma 
-barplot(prop.table(svytable(formula = ~tabaco$Q074+tabaco$status2,fumo)),beside = TRUE,main = "Asma")
-
-#status x DPOC 
-barplot(prop.table(svytable(formula = ~tabaco$Q116+tabaco$status2,fumo)),beside = TRUE,main = "DPOC")
-
-#status x c?ncer
-barplot(prop.table(svytable(formula = ~tabaco$Q120+tabaco$status2,fumo)),beside = TRUE,main = "C?ncer")
-
-#status x tipo de c?ncer
-barplot(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status2,fumo)),beside = TRUE,main = "tipo de C?ncer ")
+fig1 <- rbind(has[2,1:4], dm[2, 1:4], drc[1, 1:4])
 
