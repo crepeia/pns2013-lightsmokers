@@ -8,6 +8,9 @@
 # Load survey and data.table packages
 library(survey)
 library(data.table)
+library(reshape2)
+library(RColorBrewer)
+library(plyr)
 
 # Round output into 3 digits
 options(digits=3)
@@ -132,17 +135,22 @@ lung <- round(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status,fumo), ma
 fig3 <- rbind(has[2,1:5], dm[2, 1:5], drc[1, 1:5])
 barplot(fig3,beside = TRUE)
 
+#############
+# Figure 4 #
+#############
 
-###TESTE - grafico com ASMA, DpOC E CANCER DE pULMAO 
-fig4 <- rbind(asma[1, 1:5], dpoc[1, 1:5] ,lung[2, 1:5])
-rownames(fig4) <- c("Asma", "DPOC","Câncer de Pulmão")
-colnames(fig4) <- c("Nunca Fumante", "Fumante não diário", "Fumante Leve", "Fumante Pesado", "Ex-fumante")
+# This code creates a dataFrame to plot barcharts
+fig4 <- rbind(asma[1, 1:5], dpoc[1, 1:5] ,lung[2, 1:5]) # Bind data
+fig4 <- data.frame(fig4) # create dataframe
+fig4$doencas <- c("Asma", "DPOC","Câncer de Pulmão") # Add disease name
+fig4 <- melt(fig4, id.vars="doencas") # Melt dataFrame to plot on Ggplot, requires reshape2 package
+fig4$variable <- revalue(fig4$variable, c("X0"="Nunca Fumante", "X1"="Fumante não diário", "X2"="Fumante Leve", "X3"="Fumante Pesado", "X4"="Ex-fumante")) # Insert names
 
-## GGPLOT2 barChart
-ggplot(barreiras, aes(x = reorder(Itens,value), y = value, fill = Tempo)) + geom_bar(stat="identity", position="dodge") + coord_flip() + theme_minimal(base_size = 16, base_family = "Times New Roman") + xlab("") + ylab("")
-ggplot(fig4m)
-
-barplot(fig4, beside = TRUE)
-
-
+# Plot graph
+ggplot(fig4, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic parameters 
+     geom_bar(stat="identity", position="dodge") +  # Barplot
+     theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
+     xlab("") + ylab("%") + #xlabel and ylabel
+     theme(legend.position = c(.8,.8), legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
+     scale_fill_manual(name="Legenda", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
 
