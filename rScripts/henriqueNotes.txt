@@ -1,0 +1,24 @@
+# Introduction
+This file describes which variables could be used in future studies using pnas data. All content is highly speculative, therefore you should triple-check everything here.
+
+
+# Groups of possible interest
+These are the main health conditions  that could be correlated with tobacco use:1 - Demographics
+   * Sex (C006), Race (C009), Age (Combine C00701, C00702, C00703), 
+, level of instruction (VDD004).
+   * Weight(P001, P00101), Height (P004, P00401)
+2 - Second hand smoking (M010)
+3 - Health perception (N001 - N008)
+4 - Eating habits 
+5 - Exercise
+6 - Smoking (P050)
+7 - Hipertension
+8 - Diabetes
+10 - Stroke
+11 - Artritis
+12 - Depression, PHQ9 (N010 -N018) (Q092)
+13 - Mental health - OCD, bipolar disorder, schizofrenia (General Q110)
+14 - OCPD (General Q116)
+15 - Cancer (Q120)
+16 - Kidney disease (Q124)
+

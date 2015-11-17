@@ -52,15 +52,14 @@ prop.table(svytable(formula = ~tabaco$P067, fumo))
 
 tabaco$status[tabaco$P052 == "3"]                           <- 0  #"Nunca fumante"
 tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- 2  #"Fumante leve diario - cig. ind."
-tabaco$status[tabaco$P05401 == "2" | tabaco$P05401 == "3"
-               | tabaco$P05401 == "4" ]                      <- 1 #"Fumante nao diario - cig. ind."
+tabaco$status[tabaco$P05401 == "2" | tabaco$P05401 == "3"| tabaco$P05401 == "4" ]                      <- 1 #"Fumante nao diario - cig. ind."
 tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 > 10]    <- 3   # "Fumante pesado - cig. ind."
 tabaco$status[tabaco$P050 == 3 & (tabaco$P052 == 1 | tabaco$P052 == 2) ]     <- 4 #"Ex-fumante"
 tabaco$status[tabaco$P05401 == 5]                           <- 5 #"Nao fumante de cigarro industrializado"
 
 
-##FERNANDO 
-status.names <- c("Nunca Fumante", "Fum. não diário", ...)
+##FERNANDO - to be done
+# status.names <- c("Nunca Fumante", "Fum. não diário", ...)
 
 ##PREVALENCE OF THE 5 GROUPS
 svymean(~tabaco$status, fumo)*100 
@@ -71,7 +70,6 @@ tabaco$idade[tabaco$C008>=18 & tabaco$C008 < 29]<- 0
 tabaco$idade[tabaco$C008>=29 & tabaco$C008 < 59]<- 1
 tabaco$idade[tabaco$C008>=59 & tabaco$C008 < 64]<- 2
 tabaco$idade[tabaco$C008>=64 & tabaco$C008 < 74]<- 3
-tabaco$idade[tabaco$C008 >= 74]                   <- 4
 tabaco$idade[tabaco$C008 >= 74]                 <- 4
 
 
@@ -99,7 +97,7 @@ round(prop.table(svytable(formula = ~tabaco$VDD004+tabaco$status,fumo), margin =
 
 #TABLES - ILLNESS
 
-#status x hipertens?o
+#status x hipertensao
 has <- round(prop.table(svytable(formula = ~tabaco$Q002+tabaco$status,fumo), margin=2), 3)*100
 has_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q002,fumo), margin=2), 3)*100
 
@@ -107,43 +105,26 @@ has_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q002,fumo), m
 dm <- round(prop.table(svytable(formula = ~tabaco$Q030+tabaco$status,fumo), margin=2), 3)*100
 dm_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q030,fumo), margin=2), 3)*100
 
-#status x doen?a ranal cronica 
-drc <- round(prop.table(svytable(formula = ~tabaco$Q124+tabaco$status,fumo), margin=2), 3)*100
+#status x doenca ranal cronica 
+drc <- round(prop.table(svytable(formula = ~tabaco$Q124+tabaco$status,fumo), margin=2),3)*100
 drc_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q124,fumo), margin=2), 3)*100
 
 #status x asma 
-asma <- round(prop.table(svytable(formula = ~tabaco$Q074+tabaco$status,fumo))
-asma_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q074,fumo))
-
- round(prop.table(svytable(formula = ~tabaco$Q074+tabaco$status,fumo), margin = 2),3)*100
-                
+asma <- round(prop.table(svytable(formula = ~tabaco$Q074+tabaco$status,fumo), margin=2),3)*100
 
 #status x DPOC
-dpoc <- round(prop.table(svytable(formula = ~tabaco$Q116+tabaco$status,fumo))
-dpoc_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q116,fumo))
+dpoc <- round(prop.table(svytable(formula = ~tabaco$Q116+tabaco$status,fumo), margin=2),3)*100
 
-round(prop.table(svytable(formula = ~tabaco$Q116+tabaco$status,fumo), margin = 2),3)*100
+#status x cancer # Do not use for now.
+cancer <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q120,fumo), margin = 2),3)*100
                 
-#status x c?ncer
-cancer <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q120,fumo))
- round(prop.table(svytable(formula = ~tabaco$Q120+tabaco$status,fumo), margin = 2),3)*100
-                
-                        
-                
-#status x c?ncer de pulm?o
+#status x cancer de pulmao
 # OBS: CANCER DE PULMAO - RESPOSTA 1 
-lung <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q121,fumo))
-lung_t <- round(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status,fumo))
+lung <- round(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status,fumo), margin = 2),5)*100
 
-              
-round(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status,fumo), margin = 2),3)*100
-                
-                
-                
 ######################################################
-#### GRAPHICS ??
+#### GRAPHICS
 ######################################################
-
 
 ################TESTES - BY TAYNARA##################
 
@@ -153,9 +134,15 @@ barplot(fig3,beside = TRUE)
 
 
 ###TESTE - grafico com ASMA, DpOC E CANCER DE pULMAO 
-fig4 <- rbind(asma[1, 1:5], dpoc[1, 1:5] ,lung[1, 1:5])
+fig4 <- rbind(asma[1, 1:5], dpoc[1, 1:5] ,lung[2, 1:5])
+rownames(fig4) <- c("Asma", "DPOC","Câncer de Pulmão")
+colnames(fig4) <- c("Nunca Fumante", "Fumante não diário", "Fumante Leve", "Fumante Pesado", "Ex-fumante")
 
-barplot(fig4,beside = TRUE)
+## GGPLOT2 barChart
+ggplot(barreiras, aes(x = reorder(Itens,value), y = value, fill = Tempo)) + geom_bar(stat="identity", position="dodge") + coord_flip() + theme_minimal(base_size = 16, base_family = "Times New Roman") + xlab("") + ylab("")
+ggplot(fig4m)
+
+barplot(fig4, beside = TRUE)
 
 
 

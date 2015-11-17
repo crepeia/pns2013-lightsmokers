@@ -43,17 +43,12 @@ plot(monotonicity.results)
 # IRT
 phqIRT <- ksIRT(responses =  phq9, key = 4, format = 2)
 phqIRT
-
-
 plot(phqIRT, plottype = "OCC", items = "all")
 plot(phqIRT, plottype = "EIS", items = "all")
-
 plot(phqIRT, plottype = "triangle", items = "all")
-
 plot(phqIRT, plottype = "PCA")
-
 plot(phqIRT, plottype = "RCC", subjects = c(160, 5000, 10000, 15000, 50000))
-
 plot(phqIRT, plottype="expected")
 plot(phqIRT, plottype="sd")
 plot(phqIRT, plottype="density")
+
