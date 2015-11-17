@@ -11,8 +11,6 @@
 # 3 - Como usar o git apropriadamente - OK!
 # 4 - Olhar os gr√°ficos
 
-#setwd("C:/Users/guilh/pns2013-lightsmokers") # This works only on Windows. Please comment this line if you're using a real OS.
-
 # Load survey and data.table packages
 library(survey)
 library(data.table)
@@ -109,37 +107,50 @@ round(prop.table(svytable(formula = ~tabaco$status+tabaco$V0001,fumo), margin = 
 svyciprop(~tabaco$status, fumo)
 
 #status x faixa etaria 
-prop.table(svytable(formula = ~tabaco$status+tabaco$idade,fumo))
+round(prop.table(svytable(formula = ~tabaco$status+tabaco$idade,fumo), margin = 2), 3)*100
 
 #status x escolaridade
-prop.table(svytable(formula = ~tabaco$status+tabaco$VDD004,fumo))
+round(prop.table(svytable(formula = ~tabaco$status+tabaco$VDD004,fumo), margin = 2), 3)*100
 
 #status x hipertens?o
-has<-round(prop.table(svytable(formula = ~tabaco$Q002+tabaco$status,fumo), margin=2), 3)*100
+has <- round(prop.table(svytable(formula = ~tabaco$Q002+tabaco$status,fumo), margin=2), 3)*100
 has_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q002,fumo), margin=2), 3)*100
 
 #status x diabetes 
 dm <- round(prop.table(svytable(formula = ~tabaco$Q030+tabaco$status,fumo), margin=2), 3)*100
+dm_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q030,fumo), margin=2), 3)*100
 
 #status x doen?a ranal cronica 
 drc <- round(prop.table(svytable(formula = ~tabaco$Q124+tabaco$status,fumo), margin=2), 3)*100
+drc_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q124,fumo), margin=2), 3)*100
 
 #status x asma 
-asma <- prop.table(svytable(formula = ~tabaco$status2+tabaco$Q074,fumo))
+asma <- prop.table(svytable(formula = ~tabaco$Q074+tabaco$status,fumo))
+asma_t <- prop.table(svytable(formula = ~tabaco$status+tabaco$Q074,fumo))
+
 
 #status x DPOC
-dpoc <- prop.table(svytable(formula = ~tabaco$status2+tabaco$Q116,fumo))
+dpoc <- prop.table(svytable(formula = ~tabaco$Q116+tabaco$status,fumo))
+dpoc_t <- prop.table(svytable(formula = ~tabaco$status+tabaco$Q116,fumo))
 
-#status x c?ncer
+
+#status x c‚ncer
 cancer <- prop.table(svytable(formula = ~tabaco$status+tabaco$Q120,fumo))
 
-#status x c?ncer de pulm?o
-lung <- prop.table(svytable(formula = ~tabaco$status2+tabaco$Q121,fumo))
-
+#status x c‚ncer de pulm?o
+lung <- prop.table(svytable(formula = ~tabaco$status+tabaco$Q121,fumo))
+lung_t <- prop.table(svytable(formula = ~tabaco$Q121+tabaco$status,fumo))
 
 ######################################################
 #### GRAPHICS ??
 ######################################################
 
-fig1 <- rbind(has[2,1:4], dm[2, 1:4], drc[1, 1:4])
+fig1 <- rbind(has[2,1:4], dm[2, 1:4], drc[1, 1:4], asma[1, 1:4], dpoc[1, 1:4] ,lung[1, 1:4])
+
+fig2 <- rbind(has_t[1:4,2], dm_t[1:4 ,2], drc_t[1:4, 1],asma_t[1:4, 1], dpoc_t[1:4, 1],lung_t[1:4, 1])
+
+
+barplot(fig1,beside = TRUE)
+
+barplot(fig2,beside = TRUE)
 
