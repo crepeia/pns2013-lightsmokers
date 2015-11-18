@@ -78,6 +78,12 @@ tabaco$idade[tabaco$C008>=64 & tabaco$C008 < 74]<- 3
 tabaco$idade[tabaco$C008 >= 74]                 <- 4
 
 
+# Recoding the states into 5 Regions (North, Northest, Central West, Southest and South).
+tabaco$regiao[tabaco$V0001 == "11"  | tabaco$V0001 == "12"  | tabaco$V0001 == "13"   | tabaco$V0001 == "14"   | tabaco$V0001 == "15"   | tabaco$V0001 == "16"   | tabaco$V0001 == "17"]<- 0 #norte
+tabaco$regiao[tabaco$V0001 == "21"  | tabaco$V0001 == "22"  | tabaco$V0001 == "23"   | tabaco$V0001 == "24"   | tabaco$V0001 == "25" | tabaco$V0001 == "26"  | tabaco$V0001 == "27"  | tabaco$V0001 == "28"  | tabaco$V0001 == "29"  ]<- 1 #nordeste
+tabaco$regiao[tabaco$V0001 == "31"  | tabaco$V0001 == "32"  | tabaco$V0001 == "33"   | tabaco$V0001 == "35"]<- 2 #sudeste
+tabaco$regiao[tabaco$V0001 == "41"  | tabaco$V0001 == "42"  | tabaco$V0001 == "43"]<- 3 #sul
+tabaco$regiao[tabaco$V0001 == "50"  | tabaco$V0001 == "51"  | tabaco$V0001 == "52"   | tabaco$V0001 == "53" ]<- 4 #centro-oeste
 ######################################################
 # The code below does not work out of the box. Needs
 # to be validated first.
@@ -89,6 +95,10 @@ round(prop.table(svytable(formula = ~tabaco$C006+tabaco$status,fumo), margin = 2
 
 #status x brazilian states
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$V0001,fumo), margin = 2), 3)*100
+
+#status x Brazilian regions
+round(prop.table(svytable(formula = ~tabaco$status+tabaco$regiao,fumo), margin = 2), 3)*100
+round(prop.table(svytable(formula = ~tabaco$regiao + tabaco$status,fumo), margin = 2), 3)*100
 
 #status x age 
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$idade,fumo), margin = 2), 3)*100
@@ -145,8 +155,9 @@ ggplot(fig3, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic p
   geom_bar(stat="identity", position="dodge") +  # Barplot
   theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
   xlab("") + ylab("%") + #xlabel and ylabel
-  theme(legend.position = c(.2,.8), legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
-  scale_fill_manual(name="Legenda", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
+  theme(legend.position = "bottom", legend.direction="horizontal",    
+          legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
+  scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
 
 
 
