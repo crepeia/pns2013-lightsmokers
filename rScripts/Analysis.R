@@ -8,9 +8,13 @@
 # Load survey and data.table packages
 library(survey)
 library(data.table)
+
+# Load packages for graphics
 library(reshape2)
 library(RColorBrewer)
 library(plyr)
+library(ggplot2)
+
 
 # Round output into 3 digits
 options(digits=3)
@@ -21,8 +25,6 @@ options(survey.lonely.psu = "adjust")
 # Open data set - BE AWARE - data.table format!!
 pnsDT <- readRDS("data/pns.rds")
 
-# Create data.table tabaco without missing data
-#tabaco <- pnsDT[ which(pnsDT$P050 != NA)
     
 # Remove participants who did not filled tobacco survey
 tabaco <- subset(pnsDT, pnsDT$P050 != " ")
@@ -51,11 +53,11 @@ prop.table(svytable(formula = ~tabaco$P067, fumo))
 
 ## - LIGHT SMOKERS ----#
 
-##Recodificação de todos os participantes selecionados para responder o questionário individual.
-
+##Recoding all selected participants that answere the individual questionnaire.
 tabaco$status[tabaco$P052 == "3"]                           <- 0  #"Nunca fumante"
+tabaco$status[tabaco$P05401 == "2" | tabaco$P05401 == "3"| tabaco$P05401 == "4" ]  <- 1 #"Fumante nao diario - cig. ind."
 tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- 2  #"Fumante leve diario - cig. ind."
-tabaco$status[tabaco$P05401 == "2" | tabaco$P05401 == "3"| tabaco$P05401 == "4" ]                      <- 1 #"Fumante nao diario - cig. ind."
+
 tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 > 10]    <- 3   # "Fumante pesado - cig. ind."
 tabaco$status[tabaco$P050 == 3 & (tabaco$P052 == 1 | tabaco$P052 == 2) ]     <- 4 #"Ex-fumante"
 tabaco$status[tabaco$P05401 == 5]                           <- 5 #"Nao fumante de cigarro industrializado"
@@ -81,19 +83,19 @@ tabaco$idade[tabaco$C008 >= 74]                 <- 4
 # to be validated first.
 ######################################################
 
-# Status x Sexo
+# Status x gender
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$C006,fumo), margin = 2),3)*100
 round(prop.table(svytable(formula = ~tabaco$C006+tabaco$status,fumo), margin = 2),3)*100
 
-#status x Regi?o do brasil
+#status x brazilian states
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$V0001,fumo), margin = 2), 3)*100
 
-#status x faixa etaria 
+#status x age 
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$idade,fumo), margin = 2), 3)*100
 round(prop.table(svytable(formula = ~tabaco$idade+tabaco$status, fumo), margin = 2),3)*100
 
 
-#status x escolaridade
+#status x education level
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$VDD004,fumo), margin = 2), 3)*100
 round(prop.table(svytable(formula = ~tabaco$VDD004+tabaco$status,fumo), margin = 2),3)*100
 
@@ -108,7 +110,7 @@ has_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q002,fumo), m
 dm <- round(prop.table(svytable(formula = ~tabaco$Q030+tabaco$status,fumo), margin=2), 3)*100
 dm_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q030,fumo), margin=2), 3)*100
 
-#status x doenca ranal cronica 
+#status x doenca renal cronica 
 drc <- round(prop.table(svytable(formula = ~tabaco$Q124+tabaco$status,fumo), margin=2),3)*100
 drc_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q124,fumo), margin=2), 3)*100
 
@@ -133,6 +135,21 @@ lung <- round(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status,fumo), ma
 
 ###TESTE - grafico com HIp, diabetes e DRC
 fig3 <- rbind(has[2,1:5], dm[2, 1:5], drc[1, 1:5])
+fig3 <- data.frame(fig3) # create dataframe
+fig3$doencas <- c("Hiertensão", "Diabetes","Doença Renal Crônica") # Add disease name
+fig3 <- melt(fig3, id.vars="doencas") # Melt dataFrame to plot on Ggplot, requires reshape2 package
+fig3$variable <- revalue(fig3$variable, c("X0"="Nunca Fumante", "X1"="Fumante não diário", "X2"="Fumante Leve", "X3"="Fumante Pesado", "X4"="Ex-fumante")) # Insert names
+
+# Plot graph
+ggplot(fig3, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic parameters 
+  geom_bar(stat="identity", position="dodge") +  # Barplot
+  theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
+  xlab("") + ylab("%") + #xlabel and ylabel
+  theme(legend.position = c(.8,.8), legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
+  scale_fill_manual(name="Legenda", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
+
+
+
 barplot(fig3,beside = TRUE)
 
 #############
