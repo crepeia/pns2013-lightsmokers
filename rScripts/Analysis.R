@@ -136,7 +136,7 @@ lung <- round(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status,fumo), ma
 ###TESTE - grafico com HIp, diabetes e DRC
 fig3 <- rbind(has[2,1:5], dm[2, 1:5], drc[1, 1:5])
 fig3 <- data.frame(fig3) # create dataframe
-fig3$doencas <- c("Hiertensão", "Diabetes","Doença Renal Crônica") # Add disease name
+fig3$doencas <- c("Hipertensão", "Diabetes","Doença Renal Crônica") # Add disease name
 fig3 <- melt(fig3, id.vars="doencas") # Melt dataFrame to plot on Ggplot, requires reshape2 package
 fig3$variable <- revalue(fig3$variable, c("X0"="Nunca Fumante", "X1"="Fumante não diário", "X2"="Fumante Leve", "X3"="Fumante Pesado", "X4"="Ex-fumante")) # Insert names
 
@@ -145,7 +145,7 @@ ggplot(fig3, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic p
   geom_bar(stat="identity", position="dodge") +  # Barplot
   theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
   xlab("") + ylab("%") + #xlabel and ylabel
-  theme(legend.position = c(.8,.8), legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
+  theme(legend.position = c(.2,.8), legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
   scale_fill_manual(name="Legenda", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
 
 
@@ -157,9 +157,9 @@ barplot(fig3,beside = TRUE)
 #############
 
 # This code creates a dataFrame to plot barcharts
-fig4 <- rbind(asma[1, 1:5], dpoc[1, 1:5] ,lung[2, 1:5]) # Bind data
+fig4 <- rbind(asma[1, 1:5], dpoc[1, 1:5] ) # Bind data
 fig4 <- data.frame(fig4) # create dataframe
-fig4$doencas <- c("Asma", "DPOC","Câncer de Pulmão") # Add disease name
+fig4$doencas <- c("Asma", "DPOC") # Add disease name
 fig4 <- melt(fig4, id.vars="doencas") # Melt dataFrame to plot on Ggplot, requires reshape2 package
 fig4$variable <- revalue(fig4$variable, c("X0"="Nunca Fumante", "X1"="Fumante não diário", "X2"="Fumante Leve", "X3"="Fumante Pesado", "X4"="Ex-fumante")) # Insert names
 
@@ -168,6 +168,7 @@ ggplot(fig4, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic p
      geom_bar(stat="identity", position="dodge") +  # Barplot
      theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
      xlab("") + ylab("%") + #xlabel and ylabel
-     theme(legend.position = c(.8,.8), legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
-     scale_fill_manual(name="Legenda", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
+     theme(legend.position = "bottom", legend.direction="horizontal", 
+           legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
+     scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
 
