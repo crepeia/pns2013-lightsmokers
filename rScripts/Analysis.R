@@ -131,10 +131,12 @@ asma <- round(prop.table(svytable(formula = ~tabaco$Q074+tabaco$status,fumo), ma
 dpoc <- round(prop.table(svytable(formula = ~tabaco$Q116+tabaco$status,fumo), margin=2),3)*100
 
 #status x cancer # Do not use for now.
+round(prop.table(svytable(formula = ~tabaco$Q120+tabaco$status,fumo), margin = 2),3)*100
 cancer <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q120,fumo), margin = 2),3)*100
                 
 #status x cancer de pulmao
 # OBS: CANCER DE PULMAO - RESPOSTA 1 
+round(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status,fumo), margin = 2),5)*100
 lung <- round(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status,fumo), margin = 2),5)*100
 
 ######################################################
