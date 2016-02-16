@@ -176,15 +176,13 @@ round(prop.table(svytable(formula = ~tabaco$N001+tabaco$status,fumo), margin = 2
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$P027,fumo), margin = 2),3)*100
 round(prop.table(svytable(formula = ~tabaco$P027+tabaco$status,fumo), margin = 2),3)*100
 
-#status x alcohol use  - 2  #THINK ABOUT THIS ONE
-
-
+#status x alcohol use  - 2  
 
 ##recoding variable P028 according to AUDIT 
 
 tabaco$diasemana[tabaco$P028==0  | tabaco$P028==1] <- 0   #0 ou 1 vez/semana
 tabaco$diasemana[tabaco$P028==2  | tabaco$P028==3] <- 1 #2 ou 3 /semana
-tabaco$diasemana[tabaco$P028==4  | tabaco$P028==5 | tabaco$P028==6 | tabaco$P028==7] <- 4 ou mais/semana
+tabaco$diasemana[tabaco$P028==4  | tabaco$P028==5 | tabaco$P028==6 | tabaco$P028==7] <- 3 #4 ou mais/semana
 
 
 round(prop.table(svytable(formula = ~tabaco$diasemana+tabaco$status,fumo), margin = 2),3)*100
@@ -224,7 +222,7 @@ tabaco$idadeinicio[tabaco$P053>=35 & tabaco$P053<=39] <- 5 #35 a 39 anos
 tabaco$idadeinicio[tabaco$P053>=40] <- 6 #40 ou mais.
 
 
-round(prop.table(svytable(formula = ~tabaco$idadeinicio+tabacostatus,fumo), margin = 2),3)*100
+round(prop.table(svytable(formula = ~tabaco$idadeinicio+tabaco$status,fumo), margin = 2),3)*100
 
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$P053,fumo), margin = 2),3)*100
 round(prop.table(svytable(formula = ~tabaco$P053+tabaco$status,fumo), margin = 2),3)*100
