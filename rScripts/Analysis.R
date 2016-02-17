@@ -29,23 +29,7 @@ pnsDT <- readRDS("data/pns.rds")
 # Remove participants who did not filled tobacco survey
 tabaco <- subset(pnsDT, pnsDT$P050 != " ")
 
-# Survey format
-fumo <- svydesign(
-  id = tabaco$UPA,
-  strata = tabaco$V0024,
-  data = tabaco,
-  weights = ~V00291
-)
 
-#######################################################
-# TEST 1 -
-# Reproduce the original estimates from IBGE.
-######################################################
-
-# P050 - Tabaco fumado
-prop.table(svytable(formula = ~tabaco$P050, fumo))
-# P067 - Outros produtos que não sejam fumados
-prop.table(svytable(formula = ~tabaco$P067, fumo))
 
 
 ######################################################
@@ -64,9 +48,16 @@ tabaco$status[tabaco$P050 == 3 & (tabaco$P052 == 1 | tabaco$P052 == 2) ] 	<- 4 #
 tabaco$status[tabaco$P05401 == 5]                       	<- 5 #"Nao fumante de cigarro industrializado"
 
 
+
 ##FERNANDO - to be done
 # status.names <- c("Nunca Fumante", "Fum. não diário", ...)
-
+# Survey format
+fumo <- svydesign(
+  id = tabaco$UPA,
+  strata = tabaco$V0024,
+  data = tabaco,
+  weights = ~V00291
+)
 ##PREVALENCE OF THE 5 GROUPS
 svymean(~tabaco$status, fumo)*100
 
@@ -84,7 +75,29 @@ tabaco$regiao[tabaco$V0001 == "11"  | tabaco$V0001 == "12"  | tabaco$V0001 == "1
 tabaco$regiao[tabaco$V0001 == "21"  | tabaco$V0001 == "22"  | tabaco$V0001 == "23"   | tabaco$V0001 == "24"   | tabaco$V0001 == "25" | tabaco$V0001 == "26"  | tabaco$V0001 == "27"  | tabaco$V0001 == "28"  | tabaco$V0001 == "29"  ]<- 1 #nordeste
 tabaco$regiao[tabaco$V0001 == "31"  | tabaco$V0001 == "32"  | tabaco$V0001 == "33"   | tabaco$V0001 == "35"]<- 2 #sudeste
 tabaco$regiao[tabaco$V0001 == "41"  | tabaco$V0001 == "42"  | tabaco$V0001 == "43"]<- 3 #sul
-tabaco$regiao[tabaco$V0001 == "50"  | tabaco$V0001 == "51"  | tabaco$V0001 == "52"   | tabaco$V0001 == "53" ]<- 4 #centro-oeste
+tabaco$regiao[tabaco$V0001 == "50"  | tabaco$V0001 == "51"  | tabaco$V0001 == "52"   | tabaco$V0001 == "53" ]<- 4 
+#centro-oeste
+
+
+# Survey format
+fumo <- svydesign(
+  id = tabaco$UPA,
+  strata = tabaco$V0024,
+  data = tabaco,
+  weights = ~V00291
+)
+#######################################################
+# TEST 1 -
+# Reproduce the original estimates from IBGE.
+######################################################
+
+# P050 - Tabaco fumado
+prop.table(svytable(formula = ~tabaco$P050, fumo))
+# P067 - Outros produtos que não sejam fumados
+prop.table(svytable(formula = ~tabaco$P067, fumo))
+
+
+
 ######################################################
 # The code below does not work out of the box. Needs
 # to be validated first.
@@ -93,104 +106,149 @@ tabaco$regiao[tabaco$V0001 == "50"  | tabaco$V0001 == "51"  | tabaco$V0001 == "5
 
 ####### SOCIODEMOGRAPHIC DATA - tables ##########
 # Status x gender
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$C006,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$C006+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula = ~status+C006,fumo, Ntotal = 100)
+svytable(formula = ~tabaco$C006+status,fumo,Ntotal = 100)
+
+#test Qui-quadrado
+svychisq(formula = ~status+C006,design = fumo,statistic="Chisq")
+summary(svytable(formula = ~status+C006,fumo), statistic="Chisq")
+
 
 #status x brazilian states
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$V0001,fumo), margin = 2), 3)*100
+svytable(formula  = ~tabaco$status+tabaco$V0001,fumo, Ntotal = 100)
+
+
 
 #status x Brazilian regions
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$regiao,fumo), margin = 2), 3)*100
-round(prop.table(svytable(formula = ~tabaco$regiao + tabaco$status,fumo), margin = 2), 3)*100
+svytable(formula  = ~tabaco$status+tabaco$regiao,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$regiao + tabaco$status,fumo, Ntotal = 100)
+
+#test Qui-quadrado
+svychisq(formula = ~status+regiao,design=fumo,statistic="Chisq") 
+summary(svytable(formula = ~status+regiao,fumo), statistic="Chisq") 
 
 #status x age
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$idade,fumo), margin = 2), 3)*100
-round(prop.table(svytable(formula = ~tabaco$idade+tabaco$status, fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$idade,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$idade+tabaco$status, fumo, Ntotal = 100)
 
+#test Qui-quadrado
+svychisq(formula = ~status+idade,design = fumo,statistic="Chisq")
+summary(svytable(formula = ~status+idade,fumo), statistic="Chisq")
 
 #status x education level
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$VDD004,fumo), margin = 2), 3)*100
-round(prop.table(svytable(formula = ~tabaco$VDD004+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$VDD004,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$VDD004+tabaco$status,fumo, Ntotal = 100)
+
+#test Qui-quadrado
+svychisq(formula = ~status+VDD004, design = fumo,statistic="Chisq")
+summary(svytable(formula = ~status+VDD004,fumo), statistic="Chisq")
 
 
 ####### ILLNESS - tables ########
 
 #status x hipertensao
 
-round(prop.table(svytable(formula = ~tabaco$Q002+tabaco$status,fumo), margin=2), 3)*100
-has <- round(prop.table(svytable(formula = ~tabaco$Q002+tabaco$status,fumo), margin=2), 3)*100
-has_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q002,fumo), margin=2), 3)*100
+svytable(formula  = ~tabaco$Q002+tabaco$status,fumo), margin=2), 3)*100
+has <- svytable(formula  = ~tabaco$Q002+tabaco$status,fumo), margin=2), 3)*100
+has_t <- svytable(formula  = ~tabaco$status+tabaco$Q002,fumo), margin=2), 3)*100
+
+
+#test Qui-quadrado
+svychisq(formula = ~Q002+status,design = fumo,statistic="Chisq") 
+summary(svytable(formula = ~Q002+status,fumo), statistic="Chisq")
 
 #status x diabetes
-round(prop.table(svytable(formula = ~tabaco$Q030+tabaco$status,fumo), margin=2), 3)*100
-dm <- round(prop.table(svytable(formula = ~tabaco$Q030+tabaco$status,fumo), margin=2), 3)*100
-dm_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q030,fumo), margin=2), 3)*100
+svytable(formula  = ~tabaco$Q030+tabaco$status,fumo), margin=2), 3)*100
+dm <- svytable(formula  = ~tabaco$Q030+tabaco$status,fumo), margin=2), 3)*100
+dm_t <- svytable(formula  = ~tabaco$status+tabaco$Q030,fumo), margin=2), 3)*100
+
+
 
 #status x doenca renal cronica
-round(prop.table(svytable(formula = ~tabaco$Q124+tabaco$status,fumo), margin=2),3)*100
-drc <- round(prop.table(svytable(formula = ~tabaco$Q124+tabaco$status,fumo), margin=2),3)*100
-drc_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q124,fumo), margin=2), 3)*100
+svytable(formula  = ~tabaco$Q124+tabaco$status,fumo), margin=2),3)*100
+drc <- svytable(formula  = ~tabaco$Q124+tabaco$status,fumo), margin=2),3)*100
+drc_t <- svytable(formula  = ~tabaco$status+tabaco$Q124,fumo), margin=2), 3)*100
 
 #status x asma
-round(prop.table(svytable(formula = ~tabaco$Q074+tabaco$status,fumo), margin=2),3)*100
-asma <- round(prop.table(svytable(formula = ~tabaco$Q074+tabaco$status,fumo), margin=2),3)*100
+svytable(formula  = ~tabaco$Q074+tabaco$status,fumo), margin=2),3)*100
+asma <- svytable(formula  = ~tabaco$Q074+tabaco$status,fumo), margin=2),3)*100
+
+#test Qui-quadrado
+svychisq(formula = ~Q074+status,design = fumo,statistic="Chisq") 
+summary(svytable(formula = ~Q074+status,fumo), statistic="Chisq")
+
+
+summary(fumo, statistic="Chisq")
+svychisq(~sch.wide+stype, dclus1, statistic="adjWald")it
 
 #status x DPOC (or emphysema, chronic bronchitis or other)
-round(prop.table(svytable(formula = ~tabaco$Q116+tabaco$status,fumo), margin=2),3)*100
-dpoc <- round(prop.table(svytable(formula = ~tabaco$Q116+tabaco$status,fumo), margin=2),3)*100
+svytable(formula  = ~tabaco$Q116+tabaco$status,fumo), margin=2),3)*100
+dpoc <- svytable(formula  = ~tabaco$Q116+tabaco$status,fumo), margin=2),3)*100
 
 
 #status x cancer
-round(prop.table(svytable(formula = ~tabaco$Q120+tabaco$status,fumo), margin = 2),3)*100
-cancer <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q120,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$Q120+tabaco$status,fumo, Ntotal = 100)
+cancer <- svytable(formula  = ~tabaco$status+tabaco$Q120,fumo, Ntotal = 100)
+
+#test Qui-quadrado
+svychisq(formula = ~Q120+status,design = fumo,statistic="Chisq") 
+summary(svytable(formula = ~Q120+status,fumo), statistic="Chisq")
+
+
+#test Qui-quadrado
+svychisq(formula = ~Q120+status,design = fumo)
+summary(svytable(formula = ~Q120+status,fumo), statistic="Chisq")
 
 #status x cancer de pulmao
 # OBS: CANCER DE PULMAO - RESPOSTA 1
-round(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status,fumo), margin = 2),5)*100
-lung <- round(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status,fumo), margin = 2),5)*100
+svytable(formula  = ~tabaco$Q121+tabaco$status,fumo), margin = 2),5)*100
+lung <- svytable(formula  = ~tabaco$Q121+tabaco$status,fumo), margin = 2),5)*100
+
 
 #status x depression
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q092,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$Q092+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$Q092,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$Q092+tabaco$status,fumo, Ntotal = 100)
+
+#test Qui-quadrado
+svychisq(formula = ~status+Q092,design = fumo,statistic="Chisq") 
+summary(svytable(formula = ~status+Q092,fumo), statistic="Chisq")
 
 #status x sleeping pills
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q132,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$Q132+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$Q132,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$Q132+tabaco$status,fumo, Ntotal = 100)
 
 #status x heart illness
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q063,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$Q063+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$Q063,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$Q063+tabaco$status,fumo, Ntotal = 100)
 
 #status x AVC
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q068,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$Q068+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$Q068,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$Q068+tabaco$status,fumo, Ntotal = 100)
 
 ###### health status - table #####
 #status x heath status
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$N001,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$N001+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$N001,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$N001+tabaco$status,fumo, Ntotal = 100)
 
 
 ##### life style - alcohol + physical activity) ########
 #status x alcohol use - 1
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$P027,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$P027+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$P027,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$P027+tabaco$status,fumo, Ntotal = 100)
 
 #status x alcohol use  - 2  
-
 ##recoding variable P028 according to AUDIT 
 
 tabaco$diasemana[tabaco$P028==0  | tabaco$P028==1] <- 0   #0 ou 1 vez/semana
 tabaco$diasemana[tabaco$P028==2  | tabaco$P028==3] <- 1 #2 ou 3 /semana
 tabaco$diasemana[tabaco$P028==4  | tabaco$P028==5 | tabaco$P028==6 | tabaco$P028==7] <- 3 #4 ou mais/semana
 
+svytable(formula  = ~tabaco$diasemana+tabaco$status,fumo, Ntotal = 100)
 
-round(prop.table(svytable(formula = ~tabaco$diasemana+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$P028,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$P028+tabaco$status,fumo, Ntotal = 100)
 
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$P028,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$P028+tabaco$status,fumo), margin = 2),3)*100
-
-#status x alcohol use - 3 # USED QUESTION 2 OF AUDIT TO COMBINE VARIABLES
+#status x alcohol use - 3 # according to AUDIT 
 
 #recoding variable P029 according to AUDIT 
 tabaco$dose[tabaco$P029==1 | tabaco$P029 ==2]<- 0
@@ -199,19 +257,19 @@ tabaco$dose[tabaco$P029==5 | tabaco$P029 ==6]<- 2
 tabaco$dose[tabaco$P029==7 | tabaco$P029 ==9]<- 3
 tabaco$dose[tabaco$P029>= 10] <-4
 
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$P029,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$dose+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$dose+tabaco$status,fumo, Ntotal = 100)
+
+svytable(formula  = ~tabaco$status+tabaco$P029,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$dose+tabaco$status,fumo, Ntotal = 100)
 
 #status x physical activity
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$P034,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$P034+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$P034,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$P034+tabaco$status,fumo, Ntotal = 100)
 
 
 
 ##### tobacco use - tables ########
-#status x tobacco use: history of smoking
-
-#recoding variable P053 according to IBGE graphic
+#status x tobacco use: history of smoking   #recoding variable P053 according to IBGE graphic
 
 tabaco$idadeinicio[tabaco$P053<=14] <- 0 #menor ou igual a 14
 tabaco$idadeinicio[tabaco$P053>=14 & tabaco$P053<=19] <- 1 #15-19 anos
@@ -222,30 +280,30 @@ tabaco$idadeinicio[tabaco$P053>=35 & tabaco$P053<=39] <- 5 #35 a 39 anos
 tabaco$idadeinicio[tabaco$P053>=40] <- 6 #40 ou mais.
 
 
-round(prop.table(svytable(formula = ~tabaco$idadeinicio+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$idadeinicio+tabaco$status,fumo, Ntotal = 100)
 
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$P053,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$P053+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$P053,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$P053+tabaco$status,fumo, Ntotal = 100)
 
 #status x tobacco use: how long after wake up, first cigarette
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$P055,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$P055+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$P055,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$P055+tabaco$status,fumo, Ntotal = 100)
 
 #status x tobacco use: cessation
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$P060,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$P060+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$P060,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$P060+tabaco$status,fumo, Ntotal = 100)
 
 #status x tobacco use: treatment
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$P061,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$P061+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$P061,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$P061+tabaco$status,fumo, Ntotal = 100)
 
 #status x tobacco use: secondhand smoking
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$P068,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$P068+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$P068,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$P068+tabaco$status,fumo, Ntotal = 100)
 
 #status x tobacco use: antitobacco marketing
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$P072,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$P072+tabaco$status,fumo), margin = 2),3)*100
+svytable(formula  = ~tabaco$status+tabaco$P072,fumo, Ntotal = 100)
+svytable(formula  = ~tabaco$P072+tabaco$status,fumo, Ntotal = 100)
 
 
 
