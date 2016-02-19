@@ -162,6 +162,7 @@ round(prop.table(svytable(formula = ~tabaco$Q030+tabaco$status,fumo), margin=2),
 dm <- round(prop.table(svytable(formula = ~tabaco$Q030+tabaco$status,fumo), margin=2), 3)*100
 dm_t <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q030,fumo), margin=2), 3)*100
 
+diabete <- round(prop.table(svytable(formula = ~tabaco$Q030+tabaco$status,fumo), margin=2), 3)*100
 
 
 #status x doenca renal cronica
@@ -188,7 +189,7 @@ dpoc <- round(prop.table(svytable(formula = ~tabaco$Q116+tabaco$status,fumo), ma
 
 #status x cancer
 round(prop.table(svytable(formula = ~tabaco$Q120+tabaco$status,fumo), margin = 2),3)*100
-cancer <- round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q120,fumo), margin = 2),3)*100
+cancer <- round(prop.table(svytable(formula = ~tabaco$Q120+tabaco$status,fumo), margin = 2),3)*100
 
 #test Qui-quadrado
 svychisq(formula = ~Q120+status,design = fumo,statistic="Chisq")
@@ -209,6 +210,8 @@ lung <- round(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status,fumo), ma
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q092,fumo), margin = 2),3)*100
 round(prop.table(svytable(formula = ~tabaco$Q092+tabaco$status,fumo), margin = 2),3)*100
 
+depressão <- round(prop.table(svytable(formula = ~tabaco$Q092+tabaco$status,fumo), margin = 2),3)*100 
+
 #test Qui-quadrado
 svychisq(formula = ~status+Q092,design = fumo,statistic="Chisq")
 summary(svytable(formula = ~status+Q092fumo), statistic="Chisq")
@@ -217,14 +220,19 @@ summary(svytable(formula = ~status+Q092fumo), statistic="Chisq")
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q132,fumo), margin = 2),3)*100
 round(prop.table(svytable(formula = ~tabaco$Q132+tabaco$status,fumo), margin = 2),3)*100
 
+medicamento <- round(prop.table(svytable(formula = ~tabaco$Q132+tabaco$status,fumo), margin = 2),3)*100
+
 #status x heart illness
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q063,fumo), margin = 2),3)*100
 round(prop.table(svytable(formula = ~tabaco$Q063+tabaco$status,fumo), margin = 2),3)*100
 
+coração <- round(prop.table(svytable(formula = ~tabaco$Q063+tabaco$status,fumo), margin = 2),3)*100
+  
 #status x AVC
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$Q068,fumo), margin = 2),3)*100
 round(prop.table(svytable(formula = ~tabaco$Q068+tabaco$status,fumo), margin = 2),3)*100
 
+ AVC <- round(prop.table(svytable(formula = ~tabaco$Q068+tabaco$status,fumo), margin = 2),3)*100
 ###### health status - table #####
 #status x heath status
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$N001,fumo), margin = 2),3)*100
@@ -308,9 +316,15 @@ round(prop.table(svytable(formula = ~tabaco$status+tabaco$P068,fumo), margin = 2
 round(prop.table(svytable(formula = ~tabaco$P068+tabaco$status,fumo), margin = 2),3)*100
 
 #status x tobacco use: antitobacco marketing
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$P072,fumo), margin = 2),3)*100
-round(prop.table(svytable(formula = ~tabaco$P072+tabaco$status,fumo), margin = 2),3)*100
 
+tableP072 <- subset(tabaco, P072 >=1)
+fumoP072 <- svydesign(
+  id = tableP072$UPA,
+  strata = tableP072$V0024,
+  data = tableP072,
+  weights = ~V00291
+)
+round(prop.table(svytable(formula = ~P072+status,fumoP072), margin = 2),3)*100
 
 
 ######################################################
@@ -319,7 +333,7 @@ round(prop.table(svytable(formula = ~tabaco$P072+tabaco$status,fumo), margin = 2
 
 ################TESTES - BY TAYNARA##################
 
-###TESTE - grafico com HIp, diabetes e DRC
+### grafico com HIp, diabetes e DRC
 fig3 <- rbind(has[2,1:5], dm[2, 1:5], drc[1, 1:5])
 fig3 <- data.frame(fig3) # create dataframe
 fig3$doencas <- c("Hipertensão", "Diabetes","Doença Renal Crônica") # Add disease name
@@ -358,3 +372,62 @@ ggplot(fig4, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic p
   theme(legend.position = "bottom", legend.direction="horizontal",
         legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
   scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
+
+
+### figure 5 - AVC and heart illness
+# This code creates a dataFrame to plot barcharts
+fig5 <- rbind(coração[1, 1:5], AVC[1, 1:5] ) # Bind data
+fig5 <- data.frame(fig5) # create dataframe
+fig5$doencas <- c("Doença do coração", "AVC") # Add disease name
+fig5 <- melt(fig5, id.vars="doencas") # Melt dataFrame to plot on Ggplot, requires reshape2 package
+fig5$variable <- revalue(fig5$variable, c("X0"="Nunca Fumante", "X1"="Fumante não diário", "X2"="Fumante Leve", "X3"="Fumante Pesado", "X4"="Ex-fumante")) # Insert names
+
+# Plot graph
+ggplot(fig5, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic parameters
+  geom_bar(stat="identity", position="dodge") +  # Barplot
+  theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
+  xlab("") + ylab("%") + #xlabel and ylabel
+  theme(legend.position = "bottom", legend.direction="horizontal",
+        legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
+  scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
+
+
+### figure 6 - depression and sleeping pills
+# This code creates a dataFrame to plot barcharts
+fig6 <- rbind(depressão[1, 1:5], medicamento[1, 1:5] ) # Bind data
+fig6 <- data.frame(fig6) # create dataframe
+fig6$doencas <- c("Depressão", "Uso de medicamentos para dormir") # Add disease name
+fig6 <- melt(fig6, id.vars="doencas") # Melt dataFrame to plot on Ggplot, requires reshape2 package
+fig6$variable <- revalue(fig6$variable, c("X0"="Nunca Fumante", "X1"="Fumante não diário", "X2"="Fumante Leve", "X3"="Fumante Pesado", "X4"="Ex-fumante")) # Insert names
+
+# Plot graph
+ggplot(fig6, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic parameters
+  geom_bar(stat="identity", position="dodge") +  # Barplot
+  theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
+  xlab("") + ylab("%") + #xlabel and ylabel
+  theme(legend.position = "bottom", legend.direction="horizontal",
+        legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
+  scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
+
+
+
+
+### figure 7 - 
+# This code creates a dataFrame to plot barcharts
+fig7 <- rbind(cancer[1, 1:5], diabete[1, 1:5] ) # Bind data
+fig7 <- data.frame(fig7) # create dataframe
+fig7$doencas <- c("Câncer", "Diabetes") # Add disease name
+fig7 <- melt(fig7, id.vars="doencas") # Melt dataFrame to plot on Ggplot, requires reshape2 package
+fig7$variable <- revalue(fig7$variable, c("X0"="Nunca Fumante", "X1"="Fumante não diário", "X2"="Fumante Leve", "X3"="Fumante Pesado", "X4"="Ex-fumante")) # Insert names
+
+# Plot graph
+ggplot(fig7, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic parameters
+  geom_bar(stat="identity", position="dodge") +  # Barplot
+  theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
+  xlab("") + ylab("%") + #xlabel and ylabel
+  theme(legend.position = "bottom", legend.direction="horizontal",
+        legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
+  scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
+
+
+
