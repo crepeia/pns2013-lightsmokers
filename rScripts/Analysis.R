@@ -336,18 +336,18 @@ round(prop.table(svytable(formula = ~P072+status,fumoP072), margin = 2),3)*100
 ### grafico com HIp, diabetes e DRC
 fig3 <- rbind(has[2,1:5], dm[2, 1:5], drc[1, 1:5])
 fig3 <- data.frame(fig3) # create dataframe
-fig3$doencas <- c("Hipertensão", "Diabetes","Doença Renal Crônica") # Add disease name
+fig3$doencas <- c("Hipertensão", "Diabetes","Insuficiência Renal Crônica") # Add disease name
 fig3 <- melt(fig3, id.vars="doencas") # Melt dataFrame to plot on Ggplot, requires reshape2 package
 fig3$variable <- revalue(fig3$variable, c("X0"="Nunca Fumante", "X1"="Fumante não diário", "X2"="Fumante Leve", "X3"="Fumante Pesado", "X4"="Ex-fumante")) # Insert names
 
 # Plot graph
-ggplot(fig3, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic parameters
-  geom_bar(stat="identity", position="dodge") +  # Barplot
-  theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
-  xlab("") + ylab("%") + #xlabel and ylabel
-  theme(legend.position = "bottom", legend.direction="horizontal",    
-        legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
-  scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
+  ggplot(fig3, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic parameters
+    geom_bar(stat="identity", position="dodge") +  # Barplot
+    theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
+    xlab("") + ylab("%") + #xlabel and ylabel
+    theme(legend.position = "bottom", legend.direction="horizontal",    
+          legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
+    scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
 
 
 
@@ -360,7 +360,7 @@ barplot(fig3,beside = TRUE)
 # This code creates a dataFrame to plot barcharts
 fig4 <- rbind(asma[1, 1:5], dpoc[1, 1:5] ) # Bind data
 fig4 <- data.frame(fig4) # create dataframe
-fig4$doencas <- c("Asma", "DPOC") # Add disease name
+fig4$doencas <- c("Asma", "Doenças pulmonares") # Add disease name
 fig4 <- melt(fig4, id.vars="doencas") # Melt dataFrame to plot on Ggplot, requires reshape2 package
 fig4$variable <- revalue(fig4$variable, c("X0"="Nunca Fumante", "X1"="Fumante não diário", "X2"="Fumante Leve", "X3"="Fumante Pesado", "X4"="Ex-fumante")) # Insert names
 
@@ -370,7 +370,7 @@ ggplot(fig4, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic p
   theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
   xlab("") + ylab("%") + #xlabel and ylabel
   theme(legend.position = "bottom", legend.direction="horizontal",
-        legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
+depres        legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
   scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
 
 
@@ -394,9 +394,9 @@ ggplot(fig5, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic p
 
 ### figure 6 - depression and sleeping pills
 # This code creates a dataFrame to plot barcharts
-fig6 <- rbind(depressão[1, 1:5], medicamento[1, 1:5] ) # Bind data
+fig6 <- rbind(depressão[1, 1:5], medicamento[1, 1:5], cancer[1, 1:5] ) # Bind data
 fig6 <- data.frame(fig6) # create dataframe
-fig6$doencas <- c("Depressão", "Uso de medicamentos para dormir") # Add disease name
+fig6$doencas <- c("Depressão", "Uso de medicamentos para dormir", "Câncer") # Add disease name
 fig6 <- melt(fig6, id.vars="doencas") # Melt dataFrame to plot on Ggplot, requires reshape2 package
 fig6$variable <- revalue(fig6$variable, c("X0"="Nunca Fumante", "X1"="Fumante não diário", "X2"="Fumante Leve", "X3"="Fumante Pesado", "X4"="Ex-fumante")) # Insert names
 
@@ -409,25 +409,6 @@ ggplot(fig6, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic p
         legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
   scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
 
-
-
-
-### figure 7 - 
-# This code creates a dataFrame to plot barcharts
-fig7 <- rbind(cancer[1, 1:5], diabete[1, 1:5] ) # Bind data
-fig7 <- data.frame(fig7) # create dataframe
-fig7$doencas <- c("Câncer", "Diabetes") # Add disease name
-fig7 <- melt(fig7, id.vars="doencas") # Melt dataFrame to plot on Ggplot, requires reshape2 package
-fig7$variable <- revalue(fig7$variable, c("X0"="Nunca Fumante", "X1"="Fumante não diário", "X2"="Fumante Leve", "X3"="Fumante Pesado", "X4"="Ex-fumante")) # Insert names
-
-# Plot graph
-ggplot(fig7, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic parameters
-  geom_bar(stat="identity", position="dodge") +  # Barplot
-  theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
-  xlab("") + ylab("%") + #xlabel and ylabel
-  theme(legend.position = "bottom", legend.direction="horizontal",
-        legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
-  scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
 
 
 
