@@ -64,6 +64,12 @@ tabaco$idade[tabaco$C008>=59 & tabaco$C008 < 64]<- 2
 tabaco$idade[tabaco$C008>=64 & tabaco$C008 < 74]<- 3
 tabaco$idade[tabaco$C008 >= 74]        		 <- 4
 
+#option to age groups accordoing to recent paper published by IBGE and MS
+tabaco$idade2[tabaco$C008>=18 & tabaco$C008 <= 24]<- 0
+tabaco$idade2[tabaco$C008>=25 & tabaco$C008 <= 39]<- 1
+tabaco$idade2[tabaco$C008>=40 & tabaco$C008 <= 59]<- 2
+tabaco$idade2[tabaco$C008 >= 60]          	        <- 3
+
 
 # Recoding the states into 5 Regions (North, Northest, Central West, Southest and South).
 tabaco$regiao[tabaco$V0001 == "11"  | tabaco$V0001 == "12"  | tabaco$V0001 == "13"   | tabaco$V0001 == "14"   | tabaco$V0001 == "15"   | tabaco$V0001 == "16"   | tabaco$V0001 == "17"]<- 0 #norte
@@ -108,10 +114,12 @@ round(prop.table(svytable(formula = ~tabaco$status+tabaco$regiao,fumo), margin =
 svychisq(formula = ~status+regiao,design=fumo,statistic="Chisq")
 
 
-#status x Age (in gruops of age)
+#status x Age (in groups of age)
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$idade,fumo), margin = 2), 3)*100
+round(prop.table(svytable(formula = ~tabaco$status+tabaco$idade2,fumo), margin = 2), 3)*100
 
-##Chi-square test
+
+Chi-square test
 svychisq(formula = ~status+idade,design = fumo,statistic="Chisq")
 
 
@@ -235,8 +243,18 @@ tabaco$idadeinicio[tabaco$P053>=30 & tabaco$P053<=34] <- 4 #30 a 34 anos
 tabaco$idadeinicio[tabaco$P053>=35 & tabaco$P053<=39] <- 5 #35 a 39 anos
 tabaco$idadeinicio[tabaco$P053>=40] <- 6 #40 ou mais.
 
-
 round(prop.table(svytable(formula = ~tabaco$idadeinicio+tabaco$status,fumo), margin = 2),3)*100
+
+
+##option 2 : diferrent age groups according to IBGE  recent paper
+tabaco$idadeinicio2[tabaco$P053<18] <- 0 #menor ou igual a 18
+tabaco$idadeinicio2[tabaco$P053>=18 & tabaco$P053<=24] <- 1 #18-24 anos
+tabaco$idadeinicio2[tabaco$P053>=25 & tabaco$P053<=39] <-  2 #25-39 anos
+tabaco$idadeinicio2[tabaco$P053>=40 & tabaco$P053<=59] <-  3 #40-59 anos
+tabaco$idadeinicio2[tabaco$P053>=60] <- 4 #60 ou mais.
+
+round(prop.table(svytable(formula = ~tabaco$idadeinicio2+tabaco$status,fumo), margin = 2),3)*100
+
 
 
 #status x tobacco use: how long after wake up, first cigarette
