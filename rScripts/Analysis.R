@@ -1,9 +1,13 @@
-# =============================
+# ===============================================
 # ANALYSIS PNS 2013 - LIGHT ANS HEAVY SMOKERS
-# =============================
-# Some notes - Weight - V00291
+# ===============================================
+# Notes 
+#      1 - Weight - $V00291; Strata - $V0024
+#      2 - The data is stored as data.table to do things faster.
 
-# Tip 1 - The data is stored as data.table.
+######################################################
+# LOAD PACKAGES
+######################################################
 
 # Load survey and data.table packages
 library(survey)
@@ -15,38 +19,36 @@ library(RColorBrewer)
 library(plyr)
 library(ggplot2)
 
-
+######################################################
+# SET GENERAL OPTIONS
+######################################################
 # Round output into 3 digits
 options(digits=3)
-
 # set R to produce conservative standard errors instead of crashing
 options(survey.lonely.psu = "adjust")
 
-# Open data set - BE AWARE - data.table format!!
+######################################################
+# LOAD DATA
+######################################################
+# Open data set - NOTE - data is stored as data.table!
 pnsDT <- readRDS("data/pns.rds")
-
 
 # Remove participants who did not filled tobacco survey
 tabaco <- subset(pnsDT, pnsDT$P050 != " ")
-
-
-
 
 ######################################################
 # RECODE VARS
 ######################################################
 
 ## - LIGHT SMOKERS, HEAVY SMOKERS ----#
-
 ##Recoding all selected participants that answere the individual questionnaire.
-tabaco$status[tabaco$P052 == "3"]                       <- 0  #"Nunca fumante"
+tabaco$status[tabaco$P052 == "3"] <- 0  # Never smoker
 tabaco$status[tabaco$P05401 == "2" | tabaco$P05401 == "3"| tabaco$P05401 == "4" ]  <- 1 #"Fumante nao diario - cig. ind."
 tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- 2  #"Fumante leve diario - cig. ind."
 
 tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 > 10]    <- 3   # "Fumante pesado - cig. ind."
 tabaco$status[tabaco$P050 == 3 & (tabaco$P052 == 1 | tabaco$P052 == 2) ]     <- 4 #"Ex-fumante"
 tabaco$status[tabaco$P05401 == 5]                  		 <- 5 #"Nao fumante de cigarro industrializado"
-
 
 # Survey format
 fumo <- svydesign(
@@ -68,7 +70,7 @@ tabaco$idade[tabaco$C008 >= 74]        		 <- 4
 tabaco$idade2[tabaco$C008>=18 & tabaco$C008 <= 24]<- 0
 tabaco$idade2[tabaco$C008>=25 & tabaco$C008 <= 39]<- 1
 tabaco$idade2[tabaco$C008>=40 & tabaco$C008 <= 59]<- 2
-tabaco$idade2[tabaco$C008 >= 60]          	        <- 3
+tabaco$idade2[tabaco$C008 >= 60] <- 3
 
 
 # Recoding the states into 5 Regions (North, Northest, Central West, Southest and South).
@@ -119,7 +121,7 @@ round(prop.table(svytable(formula = ~tabaco$status+tabaco$idade,fumo), margin = 
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$idade2,fumo), margin = 2), 3)*100
 
 
-Chi-square test
+# Chi-square test
 svychisq(formula = ~status+idade,design = fumo,statistic="Chisq")
 
 
@@ -235,13 +237,13 @@ round(prop.table(svytable(formula = ~tabaco$P034+tabaco$status,fumo), margin = 2
 #status x tobacco use: history of smoking  
 #recoding variable P053 according to IBGE graphic
 
-tabaco$idadeinicio[tabaco$P053<=14] <- 0 #menor ou igual a 14
-tabaco$idadeinicio[tabaco$P053>=14 & tabaco$P053<=19] <- 1 #15-19 anos
-tabaco$idadeinicio[tabaco$P053>=20 & tabaco$P053<=24] <-  2 #20-24 anos
-tabaco$idadeinicio[tabaco$P053>=25 & tabaco$P053<=29] <- 3 #25-29 anos
-tabaco$idadeinicio[tabaco$P053>=30 & tabaco$P053<=34] <- 4 #30 a 34 anos
-tabaco$idadeinicio[tabaco$P053>=35 & tabaco$P053<=39] <- 5 #35 a 39 anos
-tabaco$idadeinicio[tabaco$P053>=40] <- 6 #40 ou mais.
+tabaco$idadeinicio[tabaco$P053<=14] <- 0                     # Less or equal to 14 Years
+tabaco$idadeinicio[tabaco$P053>=14 & tabaco$P053<=19] <- 1   # 15-19 Years
+tabaco$idadeinicio[tabaco$P053>=20 & tabaco$P053<=24] <-  2  # 20-24 Years
+tabaco$idadeinicio[tabaco$P053>=25 & tabaco$P053<=29] <- 3   # 25-29 Years
+tabaco$idadeinicio[tabaco$P053>=30 & tabaco$P053<=34] <- 4   # 30 a 34 Years
+tabaco$idadeinicio[tabaco$P053>=35 & tabaco$P053<=39] <- 5   # 35 a 39 Years
+tabaco$idadeinicio[tabaco$P053>=40] <- 6                     # 40 or older.
 
 round(prop.table(svytable(formula = ~tabaco$idadeinicio+tabaco$status,fumo), margin = 2),3)*100
 
@@ -338,8 +340,7 @@ ggplot(fig4, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic p
   geom_bar(stat="identity", position="dodge") +  # Barplot
   theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
   xlab("") + ylab("%") + #xlabel and ylabel
-  theme(legend.position = "bottom", legend.direction="horizontal",
-depres        legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
+  theme(legend.position = "bottom", legend.direction="horizontal", depres,        legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
   scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
 
 
