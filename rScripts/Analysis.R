@@ -51,13 +51,6 @@ tabaco$status[tabaco$P050 == 3 & (tabaco$P052 == 1 | tabaco$P052 == 2) ]     <- 
 tabaco$status[tabaco$P05401 == 5]                  		 <- 5 #"Nao fumante de cigarro industrializado"
 
 
-# Recode Age into groups
-tabaco$idade[tabaco$C008>=18 & tabaco$C008 < 29]<- 0
-tabaco$idade[tabaco$C008>=29 & tabaco$C008 < 59]<- 1
-tabaco$idade[tabaco$C008>=59 & tabaco$C008 < 64]<- 2
-tabaco$idade[tabaco$C008>=64 & tabaco$C008 < 74]<- 3
-tabaco$idade[tabaco$C008 >= 74]        		 <- 4
-
 # Recode age into grupos according to IBGE publication
 tabaco$idade2[tabaco$C008>=18 & tabaco$C008 <= 24]<- 0
 tabaco$idade2[tabaco$C008>=25 & tabaco$C008 <= 39]<- 1
@@ -72,6 +65,12 @@ tabaco$regiao[tabaco$V0001 == "31"  | tabaco$V0001 == "32"  | tabaco$V0001 == "3
 tabaco$regiao[tabaco$V0001 == "41"  | tabaco$V0001 == "42"  | tabaco$V0001 == "43"]<- 3 #sul
 tabaco$regiao[tabaco$V0001 == "50"  | tabaco$V0001 == "51"  | tabaco$V0001 == "52"   | tabaco$V0001 == "53" ]<- 4#centro-oeste
 
+
+# Recode educational levels into "less than 8 years" and "8 years or more"
+tabaco$educa[tabaco$VDD004 == "1" | tabaco$VDD004 =="2"  | tabaco$VDD004 == "3" | tabaco$VDD004 == "4"]<-0 #menos que 8
+tabaco$educa[tabaco$VDD004 == "5"  | tabaco$VDD004 == "6" | tabaco$VDD004 =="7"]<-1 #8 ou mais 
+
+
 # Create proper levels
 ## status
 tabaco$status <- as.factor(tabaco$status)
@@ -80,14 +79,16 @@ levels(tabaco$status) <-c("never.smoker","not.daily.smoker", "light.smoker", "he
 ## regiao
 tabaco$regiao <- as.factor(tabaco$regiao)
 levels(tabaco$regiao) <-c("North","Northeast", "Southeast", "South", "Midwest")
-
 # Sex
 tabaco$C006 <- as.factor(tabaco$C006)
 levels(tabaco$C006) <-c("Male","Female")
-
+#educational level
+tabaco$educa <- as.factor(tabaco$educa)
+levels(tabaco$educa) <-c("less than 8","8 or more")
 # Age according to IBGE
 tabaco$idade2 <- as.factor(tabaco$idade2)
 
+<<<<<<< HEAD
 # Educational level
 tabaco$VDD004 <- as.factor(tabaco$VDD004)
 levels(tabaco$VDD004) <-c("sem.instrucao","fundamental.incompleto","fundamental.completo", "medio.incompleto", "medio.completo","superior.incompleto","superior.completo")
@@ -135,6 +136,11 @@ levels(tabaco$Q063) <-c("yes","no")
 # Stroke
 tabaco$Q068 <- as.factor(tabaco$Q068)
 levels(tabaco$Q068) <-c("yes","no")
+=======
+#alcohol use - days per week
+tabaco$diasemana <- as.factor(tabaco$diasemana)
+levels(tabaco$diasemana) <-c("0 or 1","2 or three", "4 or more")
+>>>>>>> cbbbc140f3513ae03a63af9b104adfa568442f5d
 
 
 ######################################################
@@ -165,7 +171,7 @@ tableCI(tabaco$P067, fumo)
 
 #Status x gender
 ## New version with Standard errors
-round(ftable(svyby(~status, ~C006 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~C006, ~status ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 ## New version with IC's. I don't think is a good idea because we will have to much info to display on tables.
 
 
@@ -173,20 +179,20 @@ round(ftable(svyby(~status, ~C006 ,  design =fumo, FUN = svymean, keep.var = TRU
 
 # STATUS VS. SEX
 # Table with SE
-round(ftable(svyby(~status, ~C006 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~C006, ~status,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 #Chi-square test
 svychisq(formula = ~status+C006,design = fumo,statistic="Chisq")
 
 
 # STATUS VS. REGIONS
 # Table with SE
-round(ftable(svyby(~status, ~regiao ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~regiao, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 #Chi-square test
 svychisq(formula = ~status+regiao,design=fumo,statistic="Chisq")
 
 
 #STATUS VS. AGE
-round(ftable(svyby(~status, ~idade2 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~idade2, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 #Chi-square test
 svychisq(formula = ~status+idade2,design=fumo,statistic="Chisq")
 
@@ -251,13 +257,11 @@ round(ftable(svyby(~status, ~Q132 ,  design = fumo, FUN = svymean, keep.var = TR
 # Chi-square test
 svychisq(formula = ~Q132+status, design = fumo, statistic="Chisq")
 
-
 # STATUS X HEART DISEASES
 round(ftable(svyby(~status, ~Q063 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
 # Chi-square test
 svychisq(formula = ~Q063+status, design = fumo, statistic="Chisq")
 
-  
 # STATUS X STROKE
 round(ftable(svyby(~status, ~Q068 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
 # Chi-square test
@@ -267,14 +271,21 @@ svychisq(formula = ~Q068+status, design = fumo, statistic="Chisq")
 ###### HEALTH STATUS - TABLE #####
 #status x heath status
 round(prop.table(svytable(formula = ~tabaco$N001+tabaco$status,fumo), margin = 2),3)*100
+#WITH se
+round(ftable(svyby( ~N001, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
+#recoding health status into "good and very goor" or "regular, bad, really bad".
+tabaco$saude[tabaco$N001 == "1"  | tabaco$N001 == "2"]<-0 #Mmuito boa ou boa
+tabaco$saude[tabaco$N001 == "3"  | tabaco$N001 == "4"| tabaco$N001 == "5"]<-1 #regular, ruim, muito ruim 
 
+round(prop.table(svytable(formula = ~tabaco$saude+tabaco$status,fumo), margin = 2),3)*100
+
+#with SE
+round(ftable(svyby( ~tabaco$saude, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 ##### life style - alcohol + physical activity) ########
-#status x alcohol use - 1
-round(prop.table(svytable(formula = ~tabaco$P027+tabaco$status,fumo), margin = 2),3)*100
 
-#status x alcohol use  - 2  
+#status x alcohol use  - days per week 
 ##recoding variable P028 according to AUDIT
 
 tabaco$diasemana[tabaco$P028==0  | tabaco$P028==1] <- 0   #0 ou 1 vez/semana
@@ -282,54 +293,52 @@ tabaco$diasemana[tabaco$P028==2  | tabaco$P028==3] <- 1 #2 ou 3 /semana
 tabaco$diasemana[tabaco$P028==4  | tabaco$P028==5 | tabaco$P028==6 | tabaco$P028==7] <- 3 #4 ou mais/semana
 
 round(prop.table(svytable(formula = ~tabaco$diasemana+tabaco$status,fumo), margin = 2),3)*100
+#WITH SE
+round(ftable(svyby( ~tabaco$diasemana, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~status, ~tabacodiasemana, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
-#status x alcohol use - 3 
-#recoding variable P029 according to AUDIT
-tabaco$dose[tabaco$P029==1 | tabaco$P029 ==2]<- 0
-tabaco$dose[tabaco$P029==3 | tabaco$P029 ==4]<- 1
-tabaco$dose[tabaco$P029==5 | tabaco$P029 ==6]<- 2
-tabaco$dose[tabaco$P029==7 | tabaco$P029 ==9]<- 3
-tabaco$dose[tabaco$P029>= 10] <-4
+#status x alcohol 
 
 round(prop.table(svytable(formula = ~tabaco$dose+tabaco$status,fumo), margin = 2),3)*100
 
+##alcohol uyse - binge pattern
+#with SE
+round(ftable(svyby( ~P032, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+
+
 ###status x physical activity
 round(prop.table(svytable(formula = ~tabaco$P034+tabaco$status,fumo), margin = 2),3)*100
+
+#with SE
+round(ftable(svyby( ~P034, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 
 ##### tobacco use - tables ########
 #status x tobacco use: history of smoking  
-#recoding variable P053 according to IBGE graphic
-
-tabaco$idadeinicio[tabaco$P053<=14] <- 0                     # Less or equal to 14 Years
-tabaco$idadeinicio[tabaco$P053>=14 & tabaco$P053<=19] <- 1   # 15-19 Years
-tabaco$idadeinicio[tabaco$P053>=20 & tabaco$P053<=24] <-  2  # 20-24 Years
-tabaco$idadeinicio[tabaco$P053>=25 & tabaco$P053<=29] <- 3   # 25-29 Years
-tabaco$idadeinicio[tabaco$P053>=30 & tabaco$P053<=34] <- 4   # 30 a 34 Years
-tabaco$idadeinicio[tabaco$P053>=35 & tabaco$P053<=39] <- 5   # 35 a 39 Years
-tabaco$idadeinicio[tabaco$P053>=40] <- 6                     # 40 or older.
-
-round(prop.table(svytable(formula = ~tabaco$idadeinicio+tabaco$status,fumo), margin = 2),3)*100
-
-
-##option 2 : diferrent age groups according to IBGE  recent paper
+#age groups according to IBGE  recent paper
 tabaco$idadeinicio2[tabaco$P053<18] <- 0 #menor ou igual a 18
 tabaco$idadeinicio2[tabaco$P053>=18 & tabaco$P053<=24] <- 1 #18-24 anos
-tabaco$idadeinicio2[tabaco$P053>=25 & tabaco$P053<=39] <-  2 #25-39 anos
-tabaco$idadeinicio2[tabaco$P053>=40 & tabaco$P053<=59] <-  3 #40-59 anos
-tabaco$idadeinicio2[tabaco$P053>=60] <- 4 #60 ou mais.
+tabaco$idadeinicio2[tabaco$P053>=25] <-  2 #25 ou mais
 
 round(prop.table(svytable(formula = ~tabaco$idadeinicio2+tabaco$status,fumo), margin = 2),3)*100
-
+#WITH SE
+round(ftable(svyby(~idadeinicio2, ~status,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 #status x tobacco use: how long after wake up, first cigarette
 round(prop.table(svytable(formula = ~tabaco$P055+tabaco$status,fumo), margin = 2),3)*100
+#with SE
+round(ftable(svyby(~status,~P055, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+
 
 #status x tobacco use: cessation
 round(prop.table(svytable(formula = ~tabaco$P060+tabaco$status,fumo), margin = 2),3)*100
+
+#WITH se
+round(ftable(svyby(~P060,~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+
 
 #status x tobacco use: treatment
 #using this code to eliminate non-applicable results
@@ -342,8 +351,22 @@ fumoP061 <- svydesign(
 )
 round(prop.table(svytable(formula = ~P061+status,fumoP061), margin = 2),3)*100
 
+#with SE
+round(ftable(svyby(~status,~P061, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+
 #status x tobacco use: secondhand smoking
 round(prop.table(svytable(formula = ~tabaco$P068+tabaco$status,fumo), margin = 2),3)*100
+
+#recoding secondhand into "daily" x "nondaily"
+tabaco$passivo[tabaco$P068 == "1"]<-0 #daily
+tabaco$passivo[tabaco$P068 == "2" |tabaco$P068 == "3" |tabaco$P068 == "4"]<-1 #less than daily
+tabaco$passivo[tabaco$P068 == "5"]<-2 #never
+
+round(prop.table(svytable(formula = ~tabaco$passivo+tabaco$status,fumo), margin = 2),3)*100
+
+#with SE
+round(ftable(svyby( ~passivo, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+
 
 #status x tobacco use: antitobacco marketing
 #using this code to eliminate non-applicable results
@@ -355,6 +378,10 @@ fumoP072 <- svydesign(
   weights = ~V00291
 )
 round(prop.table(svytable(formula = ~P072+status,fumoP072), margin = 2),3)*100
+
+#with SE
+round(ftable(svyby(~P072,~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+
 
 #P051- NON-DAILY SMOKERS THAT were daily smokers in the past
 #using this code to eliminate non-applicable results
