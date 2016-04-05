@@ -2,7 +2,7 @@
 # ANALYSIS PNS 2013 - LIGHT ANS HEAVY SMOKERS
 # ===============================================
 # Notes 
-#      1 - Weight - $V00291; Strata - $V0024
+#      1 - ID - UPA; Weight - $V00291; Strata - $V0024
 #      2 - The data is stored as data.table to do things faster.
 
 ######################################################
@@ -35,13 +35,15 @@ pnsDT <- readRDS("data/pns.rds")
 
 # Remove participants who did not filled tobacco survey
 tabaco <- subset(pnsDT, pnsDT$P050 != " ")
+rm(pnsDT)
 
 ######################################################
 # RECODE VARS
 ######################################################
 
 ## - LIGHT SMOKERS, HEAVY SMOKERS ----#
-##Recoding all selected participants that answere the individual questionnaire.
+
+# Recode participants who answered the individual questionnaire.
 tabaco$status[tabaco$P052 == "3"] <- 0  # Never smoker
 tabaco$status[tabaco$P05401 == "2" | tabaco$P05401 == "3"| tabaco$P05401 == "4" ]  <- 1 #"Fumante nao diario - cig. ind."
 tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- 2  #"Fumante leve diario - cig. ind."
@@ -50,36 +52,52 @@ tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 > 10]    <- 3   # "Fumante pe
 tabaco$status[tabaco$P050 == 3 & (tabaco$P052 == 1 | tabaco$P052 == 2) ]     <- 4 #"Ex-fumante"
 tabaco$status[tabaco$P05401 == 5]                  		 <- 5 #"Nao fumante de cigarro industrializado"
 
-# Survey format
-fumo <- svydesign(
-  id = tabaco$UPA,
-  strata = tabaco$V0024,
-  data = tabaco,
-  weights = ~V00291
-)
 
-
-## - rECODING THE VARIABLE AGE INTO GROUPS OF AGES ----#
+# Recode Age into groups
 tabaco$idade[tabaco$C008>=18 & tabaco$C008 < 29]<- 0
 tabaco$idade[tabaco$C008>=29 & tabaco$C008 < 59]<- 1
 tabaco$idade[tabaco$C008>=59 & tabaco$C008 < 64]<- 2
 tabaco$idade[tabaco$C008>=64 & tabaco$C008 < 74]<- 3
 tabaco$idade[tabaco$C008 >= 74]        		 <- 4
 
-#option to age groups accordoing to recent paper published by IBGE and MS
+# Recode age into grupos according to IBGE publication
 tabaco$idade2[tabaco$C008>=18 & tabaco$C008 <= 24]<- 0
 tabaco$idade2[tabaco$C008>=25 & tabaco$C008 <= 39]<- 1
 tabaco$idade2[tabaco$C008>=40 & tabaco$C008 <= 59]<- 2
 tabaco$idade2[tabaco$C008 >= 60] <- 3
 
 
-# Recoding the states into 5 Regions (North, Northest, Central West, Southest and South).
+# Recode 27 states into 5 regions (North, Northest, Central West, Southest and South).
 tabaco$regiao[tabaco$V0001 == "11"  | tabaco$V0001 == "12"  | tabaco$V0001 == "13"   | tabaco$V0001 == "14"   | tabaco$V0001 == "15"   | tabaco$V0001 == "16"   | tabaco$V0001 == "17"]<- 0 #norte
 tabaco$regiao[tabaco$V0001 == "21"  | tabaco$V0001 == "22"  | tabaco$V0001 == "23"   | tabaco$V0001 == "24"   | tabaco$V0001 == "25" | tabaco$V0001 == "26"  | tabaco$V0001 == "27"  | tabaco$V0001 == "28"  | tabaco$V0001 == "29"  ]<- 1 #nordeste
 tabaco$regiao[tabaco$V0001 == "31"  | tabaco$V0001 == "32"  | tabaco$V0001 == "33"   | tabaco$V0001 == "35"]<- 2 #sudeste
 tabaco$regiao[tabaco$V0001 == "41"  | tabaco$V0001 == "42"  | tabaco$V0001 == "43"]<- 3 #sul
 tabaco$regiao[tabaco$V0001 == "50"  | tabaco$V0001 == "51"  | tabaco$V0001 == "52"   | tabaco$V0001 == "53" ]<- 4#centro-oeste
 
+# Create proper levels
+## status
+tabaco$status <- as.factor(tabaco$status)
+levels(tabaco$status) <-c("never.smoker","not.daily.smoker", "light.smoker", "heavy.smoker", "former.smoker", "not.regular.cigarettes")
+## regiao
+tabaco$regiao <- as.factor(tabaco$regiao)
+levels(tabaco$regiao) <-c("North","Northeast", "Southeast", "South", "Midwest")
+
+# Sex
+tabaco$C006 <- as.factor(tabaco$C006)
+levels(tabaco$C006) <-c("Male","Female")
+
+# Age according to IBGE
+tabaco$idade2 <- as.factor(tabaco$idade2)
+
+# Educational level
+tabaco$VDD004 <- as.factor(tabaco$VDD004)
+levels(tabaco$VDD004) <-c("sem.instrucao","fundamental.incompleto","fundamental.completo", "medio.incompleto", "medio.completo","superior.incompleto","superior.completo")
+
+
+
+######################################################
+# SURVEY DESIGN
+######################################################
 
 # Survey format
 fumo <- svydesign(
@@ -89,52 +107,62 @@ fumo <- svydesign(
   weights = ~V00291
 )
 
-
 #######################################################
 # Reproduce the original estimates from IBGE.
 ######################################################
 
+tableCI <- function(x,y){
+  round(cbind("Percentage" = svymean(~x, fumo), confint(svymean(~x, y), df=degf(y))),4)*100
+}
+
+
 # P050 - Tabaco fumado
-prop.table(svytable(formula = ~tabaco$P050, fumo))
+tableCI(tabaco$P050, fumo)
+
 # P067 - Outros produtos que não sejam fumados
-prop.table(svytable(formula = ~tabaco$P067, fumo))
+tableCI(tabaco$P067, fumo)
 
-
-
-####### SOCIODEMOGRAPHIC DATA - tables ##########
-# Status x gender
+#Status x gender
+## Old version without Standard Errors
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$C006,fumo), margin = 2),3)*100
+## New version with Standard errors
+round(ftable(svyby(~status, ~C006 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+## New version with IC's. I don't think is a good idea because we will have to much info to display on tables.
 
+
+####### SOCIODEMOGRAPHIC DATA - TABLES ##########
+
+# STATUS VS. SEX
+# Table with SE
+round(ftable(svyby(~status, ~C006 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 #Chi-square test
 svychisq(formula = ~status+C006,design = fumo,statistic="Chisq")
 
 
-#status x Brazilian regions
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$regiao,fumo), margin = 2), 3)*100
-
-##Chi-square test
+# STATUS VS. REGIONS
+# Table with SE
+round(ftable(svyby(~status, ~regiao ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+#Chi-square test
 svychisq(formula = ~status+regiao,design=fumo,statistic="Chisq")
 
 
-#status x Age (in groups of age)
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$idade,fumo), margin = 2), 3)*100
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$idade2,fumo), margin = 2), 3)*100
+#STATUS VS. AGE
+round(ftable(svyby(~status, ~idade2 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+#Chi-square test
+svychisq(formula = ~status+idade2,design=fumo,statistic="Chisq")
 
 
-# Chi-square test
-svychisq(formula = ~status+idade,design = fumo,statistic="Chisq")
+#STATUS VS. EDUCATIONAL LEVEL
+tb <- round(ftable(svyby(~status, ~VDD004 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+#Chi-square test
+svychisq(formula = ~status+ VDD004,design=fumo,statistic="Chisq")
 
 
-
-#status x education level
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$VDD004,fumo), margin = 2), 3)*100
-
-##Chi-square test
-svychisq(formula = ~status+VDD004, design = fumo,statistic="Chisq")
+#### HENRIQUE STOPPED HERE ### NOW WE NEED TO KEEP INCLUDING THE STANDARD ERROR ON TABLES BY USING THE CODE BELOW:
+# round(ftable(svyby(~status, ~VARIABLE ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 ####### ILLNESS - tables ########
-
 #status x hypertension
 round(prop.table(svytable(formula = ~tabaco$Q002+tabaco$status,fumo), margin=2), 3)*100
 has <- round(prop.table(svytable(formula = ~tabaco$Q002+tabaco$status,fumo), margin=2), 3)*100
@@ -380,3 +408,7 @@ ggplot(fig6, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic p
   scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
 
 
+#### HENRIQUE's EXPERIMENTAL CODE #####
+df  <- data.frame(round(ftable(svyby(~status, ~C006 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1))
+dfCast <- dcast(df, Var3 + C006 ~ Var2)
+table1 <- ftable(svyby(~status, ~C006 ,  design =fumo, FUN = svymean, keep.var = TRUE))

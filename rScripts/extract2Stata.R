@@ -6,6 +6,7 @@
 # Notes 
 #     Variables included:
 #       Common Variables
+#            UPA - ID
 #         V00291 - Weight 
 #         V0024  - Strata   
 #         status - Tobacco status
@@ -67,11 +68,11 @@ tabaco$regiao[tabaco$V0001 == "50"  | tabaco$V0001 == "51"  | tabaco$V0001 == "5
 
 
 # Subset Data
-dataModel1 <- tabaco[, c("V00291","V0024","status", "idade2", "regiao","C006","VDD004",
+dataModel1 <- tabaco[, c("UPA", "V00291","V0024","status", "idade2", "regiao","C006","VDD004",
                         "N001", "P032", "P034","Q002","Q030","Q063","Q116","Q120",
                         "Q092","Q132","P068")]
 
-dataModel2 <- tabaco[, c("V00291","V0024","status", "idade2", "regiao","C006","VDD004",
+dataModel2 <- tabaco[, c("UPA", "V00291","V0024","status", "idade2", "regiao","C006","VDD004",
                         "P053", "P055", "P060","P061","P072")]
 
 write.csv(dataModel1, file = "dataModel1.csv")
