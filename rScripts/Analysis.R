@@ -11,7 +11,6 @@
 
 # Load survey and data.table packages
 library(survey)
-library(data.table)
 
 # Load packages for graphics
 library(reshape2)
@@ -42,7 +41,6 @@ rm(pnsDT)
 ######################################################
 
 ## - LIGHT SMOKERS, HEAVY SMOKERS ----#
-
 # Recode participants who answered the individual questionnaire.
 tabaco$status[tabaco$P052 == "3"] <- 0  # Never smoker
 tabaco$status[tabaco$P05401 == "2" | tabaco$P05401 == "3"| tabaco$P05401 == "4" ]  <- 1 #"Fumante nao diario - cig. ind."
@@ -78,6 +76,7 @@ tabaco$regiao[tabaco$V0001 == "50"  | tabaco$V0001 == "51"  | tabaco$V0001 == "5
 ## status
 tabaco$status <- as.factor(tabaco$status)
 levels(tabaco$status) <-c("never.smoker","not.daily.smoker", "light.smoker", "heavy.smoker", "former.smoker", "not.regular.cigarettes")
+
 ## regiao
 tabaco$regiao <- as.factor(tabaco$regiao)
 levels(tabaco$regiao) <-c("North","Northeast", "Southeast", "South", "Midwest")
@@ -93,6 +92,49 @@ tabaco$idade2 <- as.factor(tabaco$idade2)
 tabaco$VDD004 <- as.factor(tabaco$VDD004)
 levels(tabaco$VDD004) <-c("sem.instrucao","fundamental.incompleto","fundamental.completo", "medio.incompleto", "medio.completo","superior.incompleto","superior.completo")
 
+# Hypertension
+tabaco$Q002 <- as.factor(tabaco$Q002)
+levels(tabaco$Q002) <-c(NA, "yes","only.during.pregnancy","no")
+
+# Diabetes
+tabaco$Q030 <- as.factor(tabaco$Q030)
+levels(tabaco$Q030) <-c(NA, "yes","only.during.pregnancy","no")
+
+# Chronic kidney disease
+tabaco$Q124 <- as.factor(tabaco$Q124)
+levels(tabaco$Q124) <-c("yes","no")
+
+# Asthma
+tabaco$Q074 <- as.factor(tabaco$Q074)
+levels(tabaco$Q074) <-c("yes","no")
+
+# Lung diseases
+tabaco$Q116 <- as.factor(tabaco$Q116)
+levels(tabaco$Q116) <-c("yes","no")
+
+# Cancer
+tabaco$Q120 <- as.factor(tabaco$Q120)
+levels(tabaco$Q120) <-c("yes","no")
+
+# Types of cancer
+tabaco$Q121 <- as.factor(tabaco$Q121)
+levels(tabaco$Q121) <-c(NA, "Lung","Bowel","Stomach","Breast","Cervical","Prostate","Skin","Other")
+
+# Depression
+tabaco$Q092 <- as.factor(tabaco$Q092)
+levels(tabaco$Q092) <-c("yes","no")
+
+# Sleeping pills
+tabaco$Q132 <- as.factor(tabaco$Q132)
+levels(tabaco$Q132) <-c("yes","no")
+
+# Heart disease
+tabaco$Q063 <- as.factor(tabaco$Q063)
+levels(tabaco$Q063) <-c("yes","no")
+
+# Stroke
+tabaco$Q068 <- as.factor(tabaco$Q068)
+levels(tabaco$Q068) <-c("yes","no")
 
 
 ######################################################
@@ -115,7 +157,6 @@ tableCI <- function(x,y){
   round(cbind("Percentage" = svymean(~x, fumo), confint(svymean(~x, y), df=degf(y))),4)*100
 }
 
-
 # P050 - Tabaco fumado
 tableCI(tabaco$P050, fumo)
 
@@ -123,8 +164,6 @@ tableCI(tabaco$P050, fumo)
 tableCI(tabaco$P067, fumo)
 
 #Status x gender
-## Old version without Standard Errors
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$C006,fumo), margin = 2),3)*100
 ## New version with Standard errors
 round(ftable(svyby(~status, ~C006 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 ## New version with IC's. I don't think is a good idea because we will have to much info to display on tables.
@@ -153,80 +192,79 @@ svychisq(formula = ~status+idade2,design=fumo,statistic="Chisq")
 
 
 #STATUS VS. EDUCATIONAL LEVEL
-tb <- round(ftable(svyby(~status, ~VDD004 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~status, ~VDD004 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 #Chi-square test
 svychisq(formula = ~status+ VDD004,design=fumo,statistic="Chisq")
 
+####### ILLNESS - TABLES ########
 
-#### HENRIQUE STOPPED HERE ### NOW WE NEED TO KEEP INCLUDING THE STANDARD ERROR ON TABLES BY USING THE CODE BELOW:
-# round(ftable(svyby(~status, ~VARIABLE ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
-
-
-####### ILLNESS - tables ########
-#status x hypertension
-round(prop.table(svytable(formula = ~tabaco$Q002+tabaco$status,fumo), margin=2), 3)*100
-has <- round(prop.table(svytable(formula = ~tabaco$Q002+tabaco$status,fumo), margin=2), 3)*100
-
-#Chi-square test
-svychisq(formula = ~Q002+status,design = fumo,statistic="Chisq")
+# STATUS x HYPERTENSION
+round(ftable(svyby(~status, ~Q002 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+# Chi-square test
+svychisq(formula = ~Q002+status, design = fumo, statistic="Chisq")
 
 
-#status x diabetes
-round(prop.table(svytable(formula = ~tabaco$Q030+tabaco$status,fumo), margin=2), 3)*100
-dm <- round(prop.table(svytable(formula = ~tabaco$Q030+tabaco$status,fumo), margin=2), 3)*100
+# STATUS x DIABETES
+round(ftable(svyby(~status, ~Q030 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+# Chi-square test
+svychisq(formula = ~Q030+status, design = fumo, statistic="Chisq")
 
 
-#status x chronic renal failure
-round(prop.table(svytable(formula = ~tabaco$Q124+tabaco$status,fumo), margin=2),3)*100
-drc <- round(prop.table(svytable(formula = ~tabaco$Q124+tabaco$status,fumo), margin=2),3)*100
-
-#status x asthma
-round(prop.table(svytable(formula = ~tabaco$Q074+tabaco$status,fumo), margin=2),3)*100
-asma <- round(prop.table(svytable(formula = ~tabaco$Q074+tabaco$status,fumo), margin=2),3)*100
-
-#Chi-square test
-svychisq(formula = ~Q074+status,design = fumo,statistic="Chisq")
-
-#status x DPOC (or emphysema, chronic bronchitis or other)
-round(prop.table(svytable(formula = ~tabaco$Q116+tabaco$status,fumo), margin=2),3)*100
-dpoc <- round(prop.table(svytable(formula = ~tabaco$Q116+tabaco$status,fumo), margin=2),3)*100
+# STATUS x CHRONIC KIDNEY DISEASE
+round(ftable(svyby(~status, ~Q124 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+# Chi-square test
+svychisq(formula = ~Q124+status, design = fumo, statistic="Chisq")
 
 
-#status x cancer
-round(prop.table(svytable(formula = ~tabaco$Q120+tabaco$status,fumo), margin = 2),3)*100
-cancer <- round(prop.table(svytable(formula = ~tabaco$Q120+tabaco$status,fumo), margin = 2),3)*100
-
-#Chi-square test
-svychisq(formula = ~Q120+status,design = fumo,statistic="Chisq")
+# STATUS X ASTHMA
+round(ftable(svyby(~status, ~Q074 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+# Chi-square test
+svychisq(formula = ~Q074+status, design = fumo, statistic="Chisq")
 
 
-#status x lung cancer (option 1)
-round(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status,fumo), margin = 2),5)*100
-lung <- round(prop.table(svytable(formula = ~tabaco$Q121+tabaco$status,fumo), margin = 2),5)*100
+# STATUS X LUNG DISEASES 
+round(ftable(svyby(~status, ~Q116 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+# Chi-square test
+svychisq(formula = ~Q116+status, design = fumo, statistic="Chisq")
 
 
-#status x depression
-round(prop.table(svytable(formula = ~tabaco$Q092+tabaco$status,fumo), margin = 2),3)*100
-depressão <- round(prop.table(svytable(formula = ~tabaco$Q092+tabaco$status,fumo), margin = 2),3)*100 
+# STATUS CANCER
+round(ftable(svyby(~status, ~Q120 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+# Chi-square test
+svychisq(formula = ~Q120+status, design = fumo, statistic="Chisq")
 
-#Chi-square test
-svychisq(formula = ~status+Q092,design = fumo,statistic="Chisq")
 
-#status x sleeping pills
-round(prop.table(svytable(formula = ~tabaco$Q132+tabaco$status,fumo), margin = 2),3)*100
-medicamento <- round(prop.table(svytable(formula = ~tabaco$Q132+tabaco$status,fumo), margin = 2),3)*100
+# STATUS X FIRST DIAGNOSED CANCER
+round(ftable(svyby(~status, ~Q121 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+# Chi-square test
+svychisq(formula = ~Q121+status, design = fumo, statistic="Chisq")
 
-#status x heart illness
-round(prop.table(svytable(formula = ~tabaco$Q063+tabaco$status,fumo), margin = 2),3)*100
-coração <- round(prop.table(svytable(formula = ~tabaco$Q063+tabaco$status,fumo), margin = 2),3)*100
+
+# STATUS X DEPRESSION
+round(ftable(svyby(~status, ~Q092 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+# Chi-square test
+svychisq(formula = ~Q092+status, design = fumo, statistic="Chisq")
+
+
+# STATUS X SLEEPING PILLS
+round(ftable(svyby(~status, ~Q132 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+# Chi-square test
+svychisq(formula = ~Q132+status, design = fumo, statistic="Chisq")
+
+
+# STATUS X HEART DISEASES
+round(ftable(svyby(~status, ~Q063 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+# Chi-square test
+svychisq(formula = ~Q063+status, design = fumo, statistic="Chisq")
+
   
-#status x CVA
-round(prop.table(svytable(formula = ~tabaco$Q068+tabaco$status,fumo), margin = 2),3)*100
-AVC <- round(prop.table(svytable(formula = ~tabaco$Q068+tabaco$status,fumo), margin = 2),3)*100
+# STATUS X STROKE
+round(ftable(svyby(~status, ~Q068 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+# Chi-square test
+svychisq(formula = ~Q068+status, design = fumo, statistic="Chisq")
 
 
-
-###### health status - table #####
+###### HEALTH STATUS - TABLE #####
 #status x heath status
 round(prop.table(svytable(formula = ~tabaco$N001+tabaco$status,fumo), margin = 2),3)*100
 
@@ -412,3 +450,6 @@ ggplot(fig6, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic p
 df  <- data.frame(round(ftable(svyby(~status, ~C006 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1))
 dfCast <- dcast(df, Var3 + C006 ~ Var2)
 table1 <- ftable(svyby(~status, ~C006 ,  design =fumo, FUN = svymean, keep.var = TRUE))
+
+## Old version without Standard Errors
+round(prop.table(svytable(formula = ~tabaco$status+tabaco$C006,fumo), margin = 2),3)*100
