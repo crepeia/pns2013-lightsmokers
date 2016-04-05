@@ -202,6 +202,10 @@ round(ftable(svyby(~status, ~VDD004 ,  design =fumo, FUN = svymean, keep.var = T
 #Chi-square test
 svychisq(formula = ~status+ VDD004,design=fumo,statistic="Chisq")
 
+round(ftable(svyby(~educa, ~status,   design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+
+
+
 ####### ILLNESS - TABLES ########
 
 # STATUS x HYPERTENSION
@@ -288,19 +292,15 @@ round(ftable(svyby( ~tabaco$saude, ~status, design =fumo, FUN = svymean, keep.va
 #status x alcohol use  - days per week 
 ##recoding variable P028 according to AUDIT
 
-tabaco$diasemana[tabaco$P028==0  | tabaco$P028==1] <- 0   #0 ou 1 vez/semana
+tabaco$diasemana[tabaco$P028== 0  | tabaco$P028==1] <- 0   #0 ou 1 vez/semana
 tabaco$diasemana[tabaco$P028==2  | tabaco$P028==3] <- 1 #2 ou 3 /semana
-tabaco$diasemana[tabaco$P028==4  | tabaco$P028==5 | tabaco$P028==6 | tabaco$P028==7] <- 3 #4 ou mais/semana
+tabaco$diasemana[tabaco$P028==4  | tabaco$P028==5 | tabaco$P028==6 | tabaco$P028==7] <- 2 #4 ou mais/semana
 
 round(prop.table(svytable(formula = ~tabaco$diasemana+tabaco$status,fumo), margin = 2),3)*100
+
 #WITH SE
 round(ftable(svyby( ~tabaco$diasemana, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
-round(ftable(svyby(~status, ~tabacodiasemana, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
-
-#status x alcohol 
-
-round(prop.table(svytable(formula = ~tabaco$dose+tabaco$status,fumo), margin = 2),3)*100
 
 ##alcohol uyse - binge pattern
 #with SE
@@ -324,13 +324,13 @@ tabaco$idadeinicio2[tabaco$P053>=25] <-  2 #25 ou mais
 
 round(prop.table(svytable(formula = ~tabaco$idadeinicio2+tabaco$status,fumo), margin = 2),3)*100
 #WITH SE
-round(ftable(svyby(~idadeinicio2, ~status,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~tabaco$idadeinicio2, ~status,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 #status x tobacco use: how long after wake up, first cigarette
 round(prop.table(svytable(formula = ~tabaco$P055+tabaco$status,fumo), margin = 2),3)*100
 #with SE
-round(ftable(svyby(~status,~P055, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~P055,~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 #status x tobacco use: cessation
@@ -352,7 +352,7 @@ fumoP061 <- svydesign(
 round(prop.table(svytable(formula = ~P061+status,fumoP061), margin = 2),3)*100
 
 #with SE
-round(ftable(svyby(~status,~P061, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~P061, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 #status x tobacco use: secondhand smoking
 round(prop.table(svytable(formula = ~tabaco$P068+tabaco$status,fumo), margin = 2),3)*100
@@ -365,7 +365,7 @@ tabaco$passivo[tabaco$P068 == "5"]<-2 #never
 round(prop.table(svytable(formula = ~tabaco$passivo+tabaco$status,fumo), margin = 2),3)*100
 
 #with SE
-round(ftable(svyby( ~passivo, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby( ~tabaco$passivo, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 #status x tobacco use: antitobacco marketing
