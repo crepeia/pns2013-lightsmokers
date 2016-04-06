@@ -67,11 +67,23 @@ tabaco$regiao[tabaco$V0001 == "50"  | tabaco$V0001 == "51"  | tabaco$V0001 == "5
 
 
 # Recode educational levels into "less than 8 years" and "8 years or more"
-tabaco$educa[tabaco$VDD004 == "1" | tabaco$VDD004 =="2"  | tabaco$VDD004 == "3" | tabaco$VDD004 == "4"]<-0 #menos que 8
-tabaco$educa[tabaco$VDD004 == "5"  | tabaco$VDD004 == "6" | tabaco$VDD004 =="7"]<-1 #8 ou mais 
+tabaco$educa[tabaco$VDD004 == "1" | tabaco$VDD004 =="2"  | tabaco$VDD004 == "3" | tabaco$VDD004 == "4"]<-0 # Less than 8 years
+tabaco$educa[tabaco$VDD004 == "5"  | tabaco$VDD004 == "6" | tabaco$VDD004 =="7"]<-1 # 8 or more years
 
 
+# Recode health status into "good and very goor" or "regular, bad, really bad".
+tabaco$saude[tabaco$N001 == "1"  | tabaco$N001 == "2"]<-0                       # Good or very good health
+tabaco$saude[tabaco$N001 == "3"  | tabaco$N001 == "4"| tabaco$N001 == "5"]<-1   # Regular or poor health
+
+# Alcohol use  - days per week - Recode variable P028 according to AUDIT
+tabaco$alcohol[tabaco$P028== 0  | tabaco$P028==1] <- 0                                     # None or once a week
+tabaco$alcohol[tabaco$P028==2  | tabaco$P028==3] <- 1                                      # 2 or 3 times a week
+tabaco$alcohol[tabaco$P028==4  | tabaco$P028==5 | tabaco$P028==6 | tabaco$P028==7] <- 2    # 4 or more times a week
+
+#---------------------------
 # Create proper levels
+#---------------------------
+
 ## status
 tabaco$status <- as.factor(tabaco$status)
 levels(tabaco$status) <-c("never.smoker","not.daily.smoker", "light.smoker", "heavy.smoker", "former.smoker", "not.regular.cigarettes")
@@ -79,16 +91,18 @@ levels(tabaco$status) <-c("never.smoker","not.daily.smoker", "light.smoker", "he
 ## regiao
 tabaco$regiao <- as.factor(tabaco$regiao)
 levels(tabaco$regiao) <-c("North","Northeast", "Southeast", "South", "Midwest")
+
 # Sex
 tabaco$C006 <- as.factor(tabaco$C006)
 levels(tabaco$C006) <-c("Male","Female")
-#educational level
+
+# Educational level
 tabaco$educa <- as.factor(tabaco$educa)
 levels(tabaco$educa) <-c("less than 8","8 or more")
+
 # Age according to IBGE
 tabaco$idade2 <- as.factor(tabaco$idade2)
 
-<<<<<<< HEAD
 # Educational level
 tabaco$VDD004 <- as.factor(tabaco$VDD004)
 levels(tabaco$VDD004) <-c("sem.instrucao","fundamental.incompleto","fundamental.completo", "medio.incompleto", "medio.completo","superior.incompleto","superior.completo")
@@ -136,11 +150,26 @@ levels(tabaco$Q063) <-c("yes","no")
 # Stroke
 tabaco$Q068 <- as.factor(tabaco$Q068)
 levels(tabaco$Q068) <-c("yes","no")
-=======
-#alcohol use - days per week
+
+# Alcohol use - days per week
 tabaco$diasemana <- as.factor(tabaco$diasemana)
 levels(tabaco$diasemana) <-c("0 or 1","2 or three", "4 or more")
->>>>>>> cbbbc140f3513ae03a63af9b104adfa568442f5d
+
+# Recode health status into "good and very goor" or "regular, bad, really bad".
+tabaco$saude <- as.factor(tabaco$saude)
+levels(tabaco$saude) <-c("Good or very good", "Regular, poor or really poor health")
+
+# Alcohol use  - days per week - Recode variable P028 according to AUDIT
+tabaco$alcohol <- as.factor(tabaco$alcohol)
+levels(tabaco$alcohol) <-c("None or once a week", "2 or 3 times a week", "4 or more times a week")
+
+# Binge drinking
+tabaco$P032 <- as.factor(tabaco$P032)
+levels(tabaco$P032) <-c(NA,"Yes", "No")
+
+# Physical activity
+tabaco$P034 <- as.factor(tabaco$P034)
+levels(tabaco$P032) <-c("Yes", "No")
 
 
 ######################################################
@@ -172,10 +201,11 @@ tableCI(tabaco$P067, fumo)
 #Status x gender
 ## New version with Standard errors
 round(ftable(svyby(~C006, ~status ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
-## New version with IC's. I don't think is a good idea because we will have to much info to display on tables.
+## New version with CI's. I don't think it's a good idea to use CI's a good idea because we will have to much info to display on tables.
 
-
-####### SOCIODEMOGRAPHIC DATA - TABLES ##########
+#######################################################
+# TABLES - SOCIO DEMOGRAPHIC
+######################################################
 
 # STATUS VS. SEX
 # Table with SE
@@ -198,15 +228,16 @@ svychisq(formula = ~status+idade2,design=fumo,statistic="Chisq")
 
 
 #STATUS VS. EDUCATIONAL LEVEL
+# Var1
 round(ftable(svyby(~status, ~VDD004 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 #Chi-square test
 svychisq(formula = ~status+ VDD004,design=fumo,statistic="Chisq")
-
+# Var2 
 round(ftable(svyby(~educa, ~status,   design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
-
-
-####### ILLNESS - TABLES ########
+######################################################
+# ILLNESS - TABLES
+######################################################
 
 # STATUS x HYPERTENSION
 round(ftable(svyby(~status, ~Q002 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
@@ -261,61 +292,41 @@ round(ftable(svyby(~status, ~Q132 ,  design = fumo, FUN = svymean, keep.var = TR
 # Chi-square test
 svychisq(formula = ~Q132+status, design = fumo, statistic="Chisq")
 
+
 # STATUS X HEART DISEASES
 round(ftable(svyby(~status, ~Q063 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
 # Chi-square test
 svychisq(formula = ~Q063+status, design = fumo, statistic="Chisq")
+
 
 # STATUS X STROKE
 round(ftable(svyby(~status, ~Q068 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
 # Chi-square test
 svychisq(formula = ~Q068+status, design = fumo, statistic="Chisq")
 
+######################################################
+# HEALTH STATUS - TABLES
+######################################################
 
-###### HEALTH STATUS - TABLE #####
-#status x heath status
-round(prop.table(svytable(formula = ~tabaco$N001+tabaco$status,fumo), margin = 2),3)*100
-#WITH se
-round(ftable(svyby( ~N001, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
-
-#recoding health status into "good and very goor" or "regular, bad, really bad".
-tabaco$saude[tabaco$N001 == "1"  | tabaco$N001 == "2"]<-0 #Mmuito boa ou boa
-tabaco$saude[tabaco$N001 == "3"  | tabaco$N001 == "4"| tabaco$N001 == "5"]<-1 #regular, ruim, muito ruim 
-
-round(prop.table(svytable(formula = ~tabaco$saude+tabaco$status,fumo), margin = 2),3)*100
-
-#with SE
+# STATUS x HEALTH STATUS
 round(ftable(svyby( ~tabaco$saude, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
-##### life style - alcohol + physical activity) ########
 
-#status x alcohol use  - days per week 
-##recoding variable P028 according to AUDIT
-
-tabaco$diasemana[tabaco$P028== 0  | tabaco$P028==1] <- 0   #0 ou 1 vez/semana
-tabaco$diasemana[tabaco$P028==2  | tabaco$P028==3] <- 1 #2 ou 3 /semana
-tabaco$diasemana[tabaco$P028==4  | tabaco$P028==5 | tabaco$P028==6 | tabaco$P028==7] <- 2 #4 ou mais/semana
-
-round(prop.table(svytable(formula = ~tabaco$diasemana+tabaco$status,fumo), margin = 2),3)*100
-
-#WITH SE
-round(ftable(svyby( ~tabaco$diasemana, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
+# ALCOHOL USE X STATUS
+round(ftable(svyby( ~alcohol, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
-##alcohol uyse - binge pattern
-#with SE
+# BINGE X STATUS
 round(ftable(svyby( ~P032, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
-###status x physical activity
-round(prop.table(svytable(formula = ~tabaco$P034+tabaco$status,fumo), margin = 2),3)*100
-
-#with SE
+# PHYSICAL ACTIVITY X STATUS
 round(ftable(svyby( ~P034, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
+######################################################
+# TOBACCO USE - TABLES
+######################################################
 
-
-##### tobacco use - tables ########
 #status x tobacco use: history of smoking  
 #age groups according to IBGE  recent paper
 tabaco$idadeinicio2[tabaco$P053<18] <- 0 #menor ou igual a 18
