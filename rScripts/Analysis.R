@@ -198,6 +198,20 @@ tableCI(tabaco$P050, fumo)
 # P067 - Outros produtos que não sejam fumados
 tableCI(tabaco$P067, fumo)
 
+
+#Prevalence of each group
+prop.table(svytable(formula = ~tabaco$status, fumo))*100
+
+
+##Prevalence of each tobacco group
+#recoding variables only for smokers
+tabaco$status2[tabaco$P05401 == "2" | tabaco$P05401 == "3"| tabaco$P05401 == "4" ]  <- 1 #"Fumante nao diario - cig. ind."
+tabaco$status2[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- 2  #"Fumante leve diario - cig. ind."
+
+tabaco$status2[tabaco$P05401 == "1" & tabaco$P05402 > 10]    <- 3   # "Fumante pesado - cig. ind."
+
+prop.table(svytable(formula = ~tabaco$status2, fumo))*100
+
 #Status x gender
 ## New version with Standard errors
 round(ftable(svyby(~C006, ~status ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
