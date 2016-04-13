@@ -11,7 +11,7 @@
 
 # Load survey and data.table packages
 library(survey)
-
+library(grid)
 # Load packages for graphics
 library(reshape2)
 library(RColorBrewer)
@@ -238,30 +238,26 @@ round(ftable(svyby(~educa, ~status,   design =fumo, FUN = svymean, keep.var = TR
 ######################################################
 
 # STATUS x HYPERTENSION
-round(ftable(svyby(~status, ~Q002 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~Q002, ~status,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 # STATUS x DIABETES
-round(ftable(svyby(~status, ~Q030 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
-
-
-# STATUS x CHRONIC KIDNEY DISEASE
-round(ftable(svyby(~status, ~Q124 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~Q030, ~status,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 # STATUS X ASTHMA
-round(ftable(svyby(~status, ~Q074 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~Q074, ~status,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 # STATUS X LUNG DISEASES
-round(ftable(svyby(~status, ~Q116 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~Q116, ~status,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 # STATUS X CANCER
-round(ftable(svyby(~status, ~Q120 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~Q120, ~status,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 # STATUS X LUNG CANCER (option 1)
-round(ftable(svyby(~status, ~Q121 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~Q121, ~status, design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 # STATUS X DEPRESSION
@@ -273,11 +269,11 @@ round(ftable(svyby(~status, ~Q132 ,  design = fumo, FUN = svymean, keep.var = TR
 
 
 # STATUS X HEART DISEASES
-round(ftable(svyby(~status, ~Q063 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~Q063, ~status, design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 # STATUS X STROKE
-round(ftable(svyby(~status, ~Q068 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
+round(ftable(svyby(~Q068, ~status, design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 ######################################################
