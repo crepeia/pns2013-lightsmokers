@@ -1,9 +1,9 @@
 # ===============================================
 # ANALYSIS PNS 2013 - LIGHT ANS HEAVY SMOKERS
 # ===============================================
-# Notes 
-#      1 - ID - UPA; Weight - $V00291; Strata - $V0024
-#      2 - The data is stored as data.table to do things faster.
+# Notes
+#    1 - ID - UPA; Weight - $V00291; Strata - $V0024
+#  	2 - The data is stored as data.table to do things faster.
 
 ######################################################
 # LOAD PACKAGES
@@ -46,9 +46,9 @@ tabaco$status[tabaco$P052 == "3"] <- 0  # Never smoker
 tabaco$status[tabaco$P05401 == "2" | tabaco$P05401 == "3"| tabaco$P05401 == "4" ]  <- 1 #"Fumante nao diario - cig. ind."
 tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- 2  #"Fumante leve diario - cig. ind."
 
-tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 > 10]    <- 3   # "Fumante pesado - cig. ind."
-tabaco$status[tabaco$P050 == 3 & (tabaco$P052 == 1 | tabaco$P052 == 2) ]     <- 4 #"Ex-fumante"
-tabaco$status[tabaco$P05401 == 5]                  		 <- 5 #"Nao fumante de cigarro industrializado"
+tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 > 10]	<- 3   # "Fumante pesado - cig. ind."
+tabaco$status[tabaco$P050 == 3 & (tabaco$P052 == 1 | tabaco$P052 == 2) ] 	<- 4 #"Ex-fumante"
+tabaco$status[tabaco$P05401 == 5]             			  <- 5 #"Nao fumante de cigarro industrializado"
 
 
 # Recode age into grupos according to IBGE publication
@@ -72,23 +72,23 @@ tabaco$educa[tabaco$VDD004 == "5"  | tabaco$VDD004 == "6" | tabaco$VDD004 =="7"]
 
 
 # Recode health status into "good and very goor" or "regular, bad, really bad".
-tabaco$saude[tabaco$N001 == "1"  | tabaco$N001 == "2"]<-0                       # Good or very good health
+tabaco$saude[tabaco$N001 == "1"  | tabaco$N001 == "2"]<-0                   	# Good or very good health
 tabaco$saude[tabaco$N001 == "3"  | tabaco$N001 == "4"| tabaco$N001 == "5"]<-1   # Regular or poor health
 
-# Alcohol use  - days per week - Recode variable P028 according to AUDIT
-tabaco$alcohol[tabaco$P028== 0  | tabaco$P028==1] <- 0                                     # None or once a week
-tabaco$alcohol[tabaco$P028==2  | tabaco$P028==3] <- 1                                      # 2 or 3 times a week
-tabaco$alcohol[tabaco$P028==4  | tabaco$P028==5 | tabaco$P028==6 | tabaco$P028==7] <- 2    # 4 or more times a week
+# Recode alcohol use , according to AUDIT
+tabaco$alcohol[tabaco$P028== 0  | tabaco$P028==1] <- 0                                 	# None or once a week
+tabaco$alcohol[tabaco$P028==2  | tabaco$P028==3] <- 1                                  	# 2 or 3 times a week
+tabaco$alcohol[tabaco$P028==4  | tabaco$P028==5 | tabaco$P028==6 | tabaco$P028==7] <- 2	# 4 or more times a week
 
 #---------------------------
 # Create proper levels
 #---------------------------
 
-## status
+# status
 tabaco$status <- as.factor(tabaco$status)
 levels(tabaco$status) <-c("never.smoker","not.daily.smoker", "light.smoker", "heavy.smoker", "former.smoker", "not.regular.cigarettes")
 
-## regiao
+# regiao
 tabaco$regiao <- as.factor(tabaco$regiao)
 levels(tabaco$regiao) <-c("North","Northeast", "Southeast", "South", "Midwest")
 
@@ -151,15 +151,11 @@ levels(tabaco$Q063) <-c("yes","no")
 tabaco$Q068 <- as.factor(tabaco$Q068)
 levels(tabaco$Q068) <-c("yes","no")
 
-# Alcohol use - days per week
-tabaco$diasemana <- as.factor(tabaco$diasemana)
-levels(tabaco$diasemana) <-c("0 or 1","2 or three", "4 or more")
-
 # Recode health status into "good and very goor" or "regular, bad, really bad".
 tabaco$saude <- as.factor(tabaco$saude)
 levels(tabaco$saude) <-c("Good or very good", "Regular, poor or really poor health")
 
-# Alcohol use  - days per week - Recode variable P028 according to AUDIT
+# Alcohol use  - days per week
 tabaco$alcohol <- as.factor(tabaco$alcohol)
 levels(tabaco$alcohol) <-c("None or once a week", "2 or 3 times a week", "4 or more times a week")
 
@@ -188,27 +184,26 @@ fumo <- svydesign(
 # Reproduce the original estimates from IBGE.
 ######################################################
 
+# CI
 tableCI <- function(x,y){
   round(cbind("Percentage" = svymean(~x, fumo), confint(svymean(~x, y), df=degf(y))),4)*100
 }
 
-# P050 - Tabaco fumado
+# P050 - Smoked tobacco
 tableCI(tabaco$P050, fumo)
 
-# P067 - Outros produtos que não sejam fumados
+# P067 - Other tobacco products
 tableCI(tabaco$P067, fumo)
 
-
-#Prevalence of each group
+#Prevalence of each group in our sample
 prop.table(svytable(formula = ~tabaco$status, fumo))*100
 
 
 ##Prevalence of each tobacco group
-#recoding variables only for smokers
-tabaco$status2[tabaco$P05401 == "2" | tabaco$P05401 == "3"| tabaco$P05401 == "4" ]  <- 1 #"Fumante nao diario - cig. ind."
+#Recode variables only for smokers
+tabaco$status2[tabaco$P05401 == "2" | tabaco$P05401 == "3"| tabaco$P05401 == "4" ]  <- 1 #"Fumante nao diario - cig ind."
 tabaco$status2[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- 2  #"Fumante leve diario - cig. ind."
-
-tabaco$status2[tabaco$P05401 == "1" & tabaco$P05402 > 10]    <- 3   # "Fumante pesado - cig. ind."
+tabaco$status2[tabaco$P05401 == "1" & tabaco$P05402 > 10]	<- 3   # "Fumante pesado - cig. ind."
 
 prop.table(svytable(formula = ~tabaco$status2, fumo))*100
 
@@ -224,29 +219,18 @@ round(ftable(svyby(~C006, ~status ,  design =fumo, FUN = svymean, keep.var = TRU
 # STATUS VS. SEX
 # Table with SE
 round(ftable(svyby(~C006, ~status,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
-#Chi-square test
-svychisq(formula = ~status+C006,design = fumo,statistic="Chisq")
-
 
 # STATUS VS. REGIONS
 # Table with SE
 round(ftable(svyby(~regiao, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
-#Chi-square test
-svychisq(formula = ~status+regiao,design=fumo,statistic="Chisq")
-
 
 #STATUS VS. AGE
 round(ftable(svyby(~idade2, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
-#Chi-square test
-svychisq(formula = ~status+idade2,design=fumo,statistic="Chisq")
-
 
 #STATUS VS. EDUCATIONAL LEVEL
 # Var1
 round(ftable(svyby(~status, ~VDD004 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
-#Chi-square test
-svychisq(formula = ~status+ VDD004,design=fumo,statistic="Chisq")
-# Var2 
+# Var2
 round(ftable(svyby(~educa, ~status,   design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 ######################################################
@@ -255,68 +239,46 @@ round(ftable(svyby(~educa, ~status,   design =fumo, FUN = svymean, keep.var = TR
 
 # STATUS x HYPERTENSION
 round(ftable(svyby(~status, ~Q002 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
-# Chi-square test
-svychisq(formula = ~Q002+status, design = fumo, statistic="Chisq")
-
 
 # STATUS x DIABETES
 round(ftable(svyby(~status, ~Q030 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
-# Chi-square test
-svychisq(formula = ~Q030+status, design = fumo, statistic="Chisq")
 
 
 # STATUS x CHRONIC KIDNEY DISEASE
 round(ftable(svyby(~status, ~Q124 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
-# Chi-square test
-svychisq(formula = ~Q124+status, design = fumo, statistic="Chisq")
 
 
 # STATUS X ASTHMA
 round(ftable(svyby(~status, ~Q074 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
-# Chi-square test
-svychisq(formula = ~Q074+status, design = fumo, statistic="Chisq")
 
 
-# STATUS X LUNG DISEASES 
+# STATUS X LUNG DISEASES
 round(ftable(svyby(~status, ~Q116 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
-# Chi-square test
-svychisq(formula = ~Q116+status, design = fumo, statistic="Chisq")
 
 
-# STATUS CANCER
+# STATUS X CANCER
 round(ftable(svyby(~status, ~Q120 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
-# Chi-square test
-svychisq(formula = ~Q120+status, design = fumo, statistic="Chisq")
 
 
-# STATUS X FIRST DIAGNOSED CANCER
+# STATUS X LUNG CANCER (option 1)
 round(ftable(svyby(~status, ~Q121 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
-# Chi-square test
-svychisq(formula = ~Q121+status, design = fumo, statistic="Chisq")
 
 
 # STATUS X DEPRESSION
 round(ftable(svyby(~status, ~Q092 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
-# Chi-square test
-svychisq(formula = ~Q092+status, design = fumo, statistic="Chisq")
 
 
 # STATUS X SLEEPING PILLS
 round(ftable(svyby(~status, ~Q132 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
-# Chi-square test
-svychisq(formula = ~Q132+status, design = fumo, statistic="Chisq")
 
 
 # STATUS X HEART DISEASES
 round(ftable(svyby(~status, ~Q063 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
-# Chi-square test
-svychisq(formula = ~Q063+status, design = fumo, statistic="Chisq")
 
 
 # STATUS X STROKE
 round(ftable(svyby(~status, ~Q068 ,  design = fumo, FUN = svymean, keep.var = TRUE))*100,1)
-# Chi-square test
-svychisq(formula = ~Q068+status, design = fumo, statistic="Chisq")
+
 
 ######################################################
 # HEALTH STATUS - TABLES
@@ -357,16 +319,14 @@ round(prop.table(svytable(formula = ~tabaco$P055+tabaco$status,fumo), margin = 2
 #with SE
 round(ftable(svyby(~P055,~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
-
 #status x tobacco use: cessation
 round(prop.table(svytable(formula = ~tabaco$P060+tabaco$status,fumo), margin = 2),3)*100
-
-#WITH se
+#WITH SE
 round(ftable(svyby(~P060,~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 #status x tobacco use: treatment
-#using this code to eliminate non-applicable results
+#use this code to eliminate non-applicable results
 tableP061 <- subset(tabaco, P061 >=1)
 fumoP061 <- svydesign(
   id = tableP061$UPA,
@@ -375,26 +335,23 @@ fumoP061 <- svydesign(
   weights = ~V00291
 )
 round(prop.table(svytable(formula = ~P061+status,fumoP061), margin = 2),3)*100
-
 #with SE
 round(ftable(svyby(~P061, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 #status x tobacco use: secondhand smoking
 round(prop.table(svytable(formula = ~tabaco$P068+tabaco$status,fumo), margin = 2),3)*100
-
-#recoding secondhand into "daily" x "nondaily"
+#recode secondhand into "daily" x "nondaily"
 tabaco$passivo[tabaco$P068 == "1"]<-0 #daily
 tabaco$passivo[tabaco$P068 == "2" |tabaco$P068 == "3" |tabaco$P068 == "4"]<-1 #less than daily
 tabaco$passivo[tabaco$P068 == "5"]<-2 #never
 
 round(prop.table(svytable(formula = ~tabaco$passivo+tabaco$status,fumo), margin = 2),3)*100
-
 #with SE
 round(ftable(svyby( ~tabaco$passivo, ~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 #status x tobacco use: antitobacco marketing
-#using this code to eliminate non-applicable results
+#Use this code to eliminate non-applicable results
 tableP072 <- subset(tabaco, P072 >=1)
 fumoP072 <- svydesign(
   id = tableP072$UPA,
@@ -403,13 +360,12 @@ fumoP072 <- svydesign(
   weights = ~V00291
 )
 round(prop.table(svytable(formula = ~P072+status,fumoP072), margin = 2),3)*100
-
 #with SE
 round(ftable(svyby(~P072,~status, design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
 
 
 #P051- NON-DAILY SMOKERS THAT were daily smokers in the past
-#using this code to eliminate non-applicable results
+#usie this code to eliminate non-applicable results
 tableP051 <- subset(tabaco, P051 >=1)
 fumoP051 <- svydesign(
   id = tableP051$UPA,
@@ -432,19 +388,19 @@ fig3 <- melt(fig3, id.vars="doencas") # Melt dataFrame to plot on Ggplot, requir
 fig3$variable <- revalue(fig3$variable, c("X0"="Nunca Fumante", "X1"="Fumante não diário", "X2"="Fumante Leve", "X3"="Fumante Pesado", "X4"="Ex-fumante")) # Insert names
 
 # Plot graph
-  ggplot(fig3, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic parameters
-    geom_bar(stat="identity", position="dodge") +  # Barplot
-    theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
-    xlab("") + ylab("%") + #xlabel and ylabel
-    theme(legend.position = "bottom", legend.direction="horizontal",    
-          legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
-    scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
+ggplot(fig3, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic parameters
+  geom_bar(stat="identity", position="dodge") +  # Barplot
+  theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
+  xlab("") + ylab("%") + #xlabel and ylabel
+  theme(legend.position = "bottom", legend.direction="horizontal",    
+        legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
+  scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
 
 
 barplot(fig3,beside = TRUE)
 
 
-##graphic 2 : ASTHMA AND COPD
+##GRAPHIC 2 : ASTHMA AND COPD
 
 # This code creates a dataFrame to plot barcharts
 fig4 <- rbind(asma[1, 1:5], dpoc[1, 1:5] ) # Bind data
@@ -458,7 +414,7 @@ ggplot(fig4, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic p
   geom_bar(stat="identity", position="dodge") +  # Barplot
   theme_minimal(base_size = 14, base_family = "Arial") + #Font size and Font Family
   xlab("") + ylab("%") + #xlabel and ylabel
-  theme(legend.position = "bottom", legend.direction="horizontal", depres,        legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
+  theme(legend.position = "bottom", legend.direction="horizontal", depres,    	legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
   scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
 
 
@@ -480,7 +436,7 @@ ggplot(fig5, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic p
   scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
 
 
-### GRAPHIC 3: VDEPRESSION, SLEEPING PILLS AND CANCER
+### GRAPHIC 4: VDEPRESSION, SLEEPING PILLS AND CANCER
 # This code creates a dataFrame to plot barcharts
 fig6 <- rbind(depressão[1, 1:5], medicamento[1, 1:5], cancer[1, 1:5] ) # Bind data
 fig6 <- data.frame(fig6) # create dataframe
@@ -498,10 +454,13 @@ ggplot(fig6, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic p
   scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
 
 
-#### HENRIQUE's EXPERIMENTAL CODE #####
+
+OBSERVATIONS:
+  #### EXPERIMENTAL CODE #####
 df  <- data.frame(round(ftable(svyby(~status, ~C006 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1))
 dfCast <- dcast(df, Var3 + C006 ~ Var2)
 table1 <- ftable(svyby(~status, ~C006 ,  design =fumo, FUN = svymean, keep.var = TRUE))
 
 ## Old version without Standard Errors
 round(prop.table(svytable(formula = ~tabaco$status+tabaco$C006,fumo), margin = 2),3)*100
+
