@@ -2,11 +2,11 @@
 # ANALYSIS PNS 2013 - LIGHT ANS HEAVY SMOKERS
 # ===============================================
 # Notes
-#    1 - ID - UPA; Weight - $V00291; Strata - $V0024
+#   1 - ID - UPA; Weight - V00291; Strata - V0024
 #  	2 - The data is stored as data.table to do things faster.
 
 ######################################################
-# LOAD PACKAGES
+# LOAD PACKAGES ----
 ######################################################
 
 # Load survey and data.table packages
@@ -19,7 +19,7 @@ library(plyr)
 library(ggplot2)
 
 ######################################################
-# SET GENERAL OPTIONS
+# SET GENERAL OPTIONS ----
 ######################################################
 # Round output into 3 digits
 options(digits=3)
@@ -27,7 +27,7 @@ options(digits=3)
 options(survey.lonely.psu = "adjust")
 
 ######################################################
-# LOAD DATA
+# LOAD DATA ----
 ######################################################
 # Open data set - NOTE - data is stored as data.table!
 pnsDT <- readRDS("data/pns.rds")
@@ -37,11 +37,13 @@ tabaco <- subset(pnsDT, pnsDT$P050 != " ")
 rm(pnsDT)
 
 ######################################################
-# RECODE VARS
+# RECODE VARS ----
 ######################################################
 
 ## - LIGHT SMOKERS, HEAVY SMOKERS ----#
+
 # Recode participants who answered the individual questionnaire.
+## Status = never smoker, not daily smoker, light smoker, heavy smoker, former smoker, not smoker of industrialized tobacco
 tabaco$status[tabaco$P052 == "3"] <- 0  # Never smoker
 tabaco$status[tabaco$P05401 == "2" | tabaco$P05401 == "3"| tabaco$P05401 == "4" ]  <- 1 #"Fumante nao diario - cig. ind."
 tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- 2  #"Fumante leve diario - cig. ind."
@@ -49,6 +51,12 @@ tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 <= 10]   <- 2  #"Fumante leve
 tabaco$status[tabaco$P05401 == "1" & tabaco$P05402 > 10]	<- 3   # "Fumante pesado - cig. ind."
 tabaco$status[tabaco$P050 == 3 & (tabaco$P052 == 1 | tabaco$P052 == 2) ] 	<- 4 #"Ex-fumante"
 tabaco$status[tabaco$P05401 == 5]             			  <- 5 #"Nao fumante de cigarro industrializado"
+
+## Never smokers, smoker of industrialized cigarretes, former smokers
+tabaco$status.2[tabaco$P052 == 3] <- "never.smoker"
+tabaco$status.2[tabaco$P050 == 3 & (tabaco$P052 == 1 | tabaco$P052 == 2) ] <- "former.smoker"
+tabaco$status.2[(tabaco$P05401 == 1 & tabaco$P05402 > 10) | (tabaco$P05401 == 2 | tabaco$P05401 == 3| tabaco$P05401 == 4) | (tabaco$P05401 == "1" & tabaco$P05402 <= 10)] <- "industrialized.tobacco"
+tabaco$status.2[tabaco$P05401 == 5] <- "not.industrialized.tobacco.smoker" 
 
 
 # Recode age into grupos according to IBGE publication
@@ -169,7 +177,7 @@ levels(tabaco$P032) <-c("Yes", "No")
 
 
 ######################################################
-# SURVEY DESIGN
+# SURVEY DESIGN ----
 ######################################################
 
 # Survey format
@@ -195,9 +203,12 @@ tableCI(tabaco$P050, fumo)
 # P067 - Other tobacco products
 tableCI(tabaco$P067, fumo)
 
+# status.2 - Never smokers, smoker of industrialized cigarretes, former smokers
+tableCI(tabaco$status.2, fumo)
+
+
 #Prevalence of each group in our sample
 prop.table(svytable(formula = ~tabaco$status, fumo))*100
-
 
 ##Prevalence of each tobacco group
 #Recode variables only for smokers
@@ -210,7 +221,7 @@ prop.table(svytable(formula = ~tabaco$status2, fumo))*100
 #Status x gender
 ## New version with Standard errors
 round(ftable(svyby(~C006, ~status ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1)
-## New version with CI's. I don't think it's a good idea to use CI's a good idea because we will have to much info to display on tables.
+## New version with CI's. I don't think it's a good idea to use CI's is a good idea because we will have to much info to display on tables.
 
 #######################################################
 # TABLES - SOCIO DEMOGRAPHIC
@@ -373,7 +384,7 @@ round(prop.table(svytable(formula = ~P051+status,fumoP051), margin = 2),3)*100
 
 
 ######################################################
-#### GRAPHICS
+#### GRAPHICS ----
 ######################################################
 
 ###GRAPHIC 1: HYPERTENSION, DIABETES, RENAL DISEASE
@@ -448,15 +459,3 @@ ggplot(fig6, aes(x = doencas, y = value, fill=variable)) + # Insert plot basic p
   theme(legend.position = "bottom", legend.direction="horizontal",
         legend.background = element_rect(colour = NA, fill = "white")) + # Postion legend and fill its background with white.
   scale_fill_manual(name="", values = brewer.pal(5, "OrRd")) # Fix legend name and add a better colour pallette
-
-
-
-OBSERVATIONS:
-  #### EXPERIMENTAL CODE #####
-df  <- data.frame(round(ftable(svyby(~status, ~C006 ,  design =fumo, FUN = svymean, keep.var = TRUE))*100,1))
-dfCast <- dcast(df, Var3 + C006 ~ Var2)
-table1 <- ftable(svyby(~status, ~C006 ,  design =fumo, FUN = svymean, keep.var = TRUE))
-
-## Old version without Standard Errors
-round(prop.table(svytable(formula = ~tabaco$status+tabaco$C006,fumo), margin = 2),3)*100
-
